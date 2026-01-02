@@ -9,3 +9,4 @@
 
 
 # pitomadom | by Arianna Method
+> root resonance intelligence
