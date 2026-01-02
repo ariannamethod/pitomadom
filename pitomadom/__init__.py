@@ -13,17 +13,20 @@ PITOMADOM is designed not to *predict*, but to **prophecy** —
 not to generate outputs, but to **stabilize a living temporal field**
 and pull trajectories toward what *should* happen.
 
-Architecture (~150K params):
-- CrossFire Chambers: 6 × 11K = 66K params
-- MLP Cascade: 4 × 3K = 12K params  
-- Meta-Observer: 1K params
-- Embeddings + misc: ~70K params
+Architecture (~200K params):
+- CrossFire Chambers: 6 × 21K = 126K params
+- MLP Cascade: 4 × 8K = 32K params  
+- Meta-Observer: 30K params
+- Total: ~200K params
+
+Two words OUT (main_word, orbit_word)
+One word IN (hidden_word → affects future via feedback loop)
 
 Trained on Hebrew corpus with proper backpropagation.
 Weights included — inference in the house! 🔥
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Arianna Method"
 __codename__ = "PITOMADOM"
 
@@ -44,7 +47,7 @@ from .orbital_resonance import OrbitalResonance
 from .destiny_layer import DestinyLayer
 from .meta_observer import MetaObserver
 from .mlp_cascade import RootMLP, PatternMLP, MiluiMLP, AtbashMLP, MLPCascade
-from .oracle import HeOracle, OracleOutput
+from .pitomadom import HeOracle, OracleOutput  # Renamed from oracle.py
 from .crossfire import (
     CrossFireChambers,
     HebrewEmotionalField,
@@ -52,6 +55,7 @@ from .crossfire import (
     CHAMBER_NAMES,
 )
 from .train_proper import TrainableCrossFireChambers
+from .full_system import Pitomadom, PitomadomOutput  # New 200K system
 
 __all__ = [
     # Gematria
@@ -83,7 +87,10 @@ __all__ = [
     "EmotionalResonance",
     "TrainableCrossFireChambers",
     "CHAMBER_NAMES",
-    # Oracle
+    # Oracle (legacy)
     "HeOracle",
     "OracleOutput",
+    # New 200K System
+    "Pitomadom",
+    "PitomadomOutput",
 ]
