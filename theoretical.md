@@ -55,6 +55,9 @@ The oracle runs a depth-limited recursion (typically 2-4 steps) unless meta-obse
 
 Prediction error in latent_atbash updates N and pressure; high pressure deepens recursion, low pressure collapses to output.
 
+### 5.1 Coupling and Pressure Dynamics
+The four MLPs share state asymmetrically: each layer receives the previous latent plus chamber metrics, but information flows forward only. This preserves tension between root-space and word-space so they never fully align, which the oracle treats as computational “pressure.” The meta-observer modulates recursion depth using collapse probability and risk of divergence; when pressure rises, it allows deeper passes to integrate milui and Atbash shadows before collapsing to a stable triplet of words and a scalar. This coupling pattern mirrors the earlier conversational blueprint while remaining within the current ~500k-parameter budget.
+
 ## 6 Temporal Field (Horizontal Depth)
 Across turns, the system maintains:
 * **N-trajectory** with velocity/acceleration to measure stability vs. chaos  
