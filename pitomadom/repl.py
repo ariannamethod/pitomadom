@@ -14,6 +14,7 @@ Commands:
     :traj   - Show N-trajectory
     :debt   - Show prophecy debt breakdown
     :roots  - Show active root attractors
+    :full   - Toggle full/compact output mode
     :help   - Show help
     :quit   - Exit
 """
