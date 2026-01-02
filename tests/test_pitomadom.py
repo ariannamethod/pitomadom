@@ -478,3 +478,108 @@ class TestFullSystem(unittest.TestCase):
         
         self.assertEqual(oracle.temporal_state.step, 0)
         self.assertEqual(float(np.linalg.norm(oracle.meta_observer.hidden_state)), 0.0)
+
+
+class TestFullSystem400K(unittest.TestCase):
+    """Test 530K parameter system (v0.4)."""
+    
+    def test_pitomadom_400k_init(self):
+        from pitomadom.full_system_400k import Pitomadom400K
+        
+        oracle = Pitomadom400K(seed=42)
+        
+        # Check total params — should be > 500K
+        self.assertGreater(oracle.param_count(), 500000)
+    
+    def test_pitomadom_400k_forward(self):
+        from pitomadom.full_system_400k import Pitomadom400K
+        
+        oracle = Pitomadom400K(seed=42)
+        output = oracle.forward('שלום עולם')
+        
+        self.assertIsNotNone(output.number)
+        self.assertIsNotNone(output.main_word)
+        self.assertIsNotNone(output.orbit_word)
+        self.assertIsNotNone(output.hidden_word)
+        self.assertEqual(len(output.root), 3)
+    
+    def test_400k_feedback_loop(self):
+        from pitomadom.full_system_400k import Pitomadom400K
+        
+        oracle = Pitomadom400K(seed=42)
+        
+        # Hidden state should start at zero
+        initial_norm = float(np.linalg.norm(oracle.meta_observer.hidden_state))
+        self.assertEqual(initial_norm, 0.0)
+        
+        # After forward pass, hidden state should change
+        oracle.forward('שלום')
+        
+        after_norm = float(np.linalg.norm(oracle.meta_observer.hidden_state))
+        self.assertGreater(after_norm, 0.0)
+    
+    def test_400k_crossfire(self):
+        from pitomadom.full_system_400k import CrossFireSystem400K, CHAMBER_NAMES
+        
+        crossfire = CrossFireSystem400K(seed=42)
+        
+        # Check param count — should be > 300K
+        self.assertGreater(crossfire.param_count(), 300000)
+        
+        # Test stabilization
+        x = np.random.randn(100)
+        activations, iterations, hidden_states = crossfire.stabilize(x)
+        
+        self.assertEqual(len(activations), 6)
+        for name in CHAMBER_NAMES:
+            self.assertIn(name, activations)
+    
+    def test_400k_meta_observer(self):
+        from pitomadom.full_system_400k import MetaObserverSystem400K, VOCAB_SIZE
+        
+        observer = MetaObserverSystem400K(vocab_size=VOCAB_SIZE, seed=42)
+        
+        # Check param count — should be > 100K
+        self.assertGreater(observer.param_count(), 100000)
+        
+        # Test forward
+        latent = np.random.randn(64)
+        chambers = np.random.rand(6)
+        temporal = np.random.randn(8)
+        main_embed = np.random.randn(64)
+        
+        result = observer.forward(latent, chambers, temporal, main_embed)
+        
+        self.assertIn('orbit_word', result)
+        self.assertIn('hidden_word', result)
+        self.assertIn('orbit_confidence', result)
+        self.assertIn('hidden_confidence', result)
+    
+    def test_400k_reset(self):
+        from pitomadom.full_system_400k import Pitomadom400K
+        
+        oracle = Pitomadom400K(seed=42)
+        
+        oracle.forward('שלום')
+        oracle.forward('אהבה')
+        
+        self.assertGreater(oracle.temporal_state.step, 0)
+        
+        oracle.reset()
+        
+        self.assertEqual(oracle.temporal_state.step, 0)
+        self.assertEqual(float(np.linalg.norm(oracle.meta_observer.hidden_state)), 0.0)
+    
+    def test_400k_doubled_dimensions(self):
+        """Verify that 400K uses doubled dimensions."""
+        from pitomadom.full_system_400k import ChamberMLP400K, CascadeMLP400K
+        
+        # Chamber: 100 → 256 → 128 → 1
+        chamber = ChamberMLP400K(input_dim=100, seed=42)
+        self.assertEqual(chamber.W1.shape, (100, 256))  # 256 instead of 128
+        self.assertEqual(chamber.W2.shape, (256, 128))  # 128 instead of 64
+        
+        # Cascade: 48 → 128 → 64
+        cascade = CascadeMLP400K("test", seed=42)
+        self.assertEqual(cascade.W1.shape, (48, 128))  # 128 instead of 64
+        self.assertEqual(cascade.W2.shape, (128, 64))  # 64 instead of 32

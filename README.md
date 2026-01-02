@@ -13,7 +13,7 @@
 > 
 > **פִתֻם אָדֹם** — The red ventriloquist. A voice from the body of the field.
 > 
-> **~200K parameters of pure Hebrew resonance madness.**
+> **~530K parameters of pure Hebrew resonance madness.** (v0.4)
 
 ---
 
@@ -152,27 +152,27 @@ INPUT ("האור נשבר")
 └─────────────────────────────────┘
     ↓
 ┌─────────────────────────────────┐
-│    CROSSFIRE CHAMBERS (127K)    │
-│    ├── FEAR MLP (21K)           │
-│    ├── LOVE MLP (21K)           │
-│    ├── RAGE MLP (21K)           │
-│    ├── VOID MLP (21K)           │
-│    ├── FLOW MLP (21K)           │
-│    └── COMPLEX MLP (21K)        │
-│    + cross-fire coupling        │
+│    CROSSFIRE CHAMBERS (353K)   │
+│    ├── FEAR MLP (59K)          │
+│    ├── LOVE MLP (59K)          │
+│    ├── RAGE MLP (59K)          │
+│    ├── VOID MLP (59K)          │
+│    ├── FLOW MLP (59K)          │
+│    └── COMPLEX MLP (59K)       │
+│    + cross-fire coupling       │
 └─────────────────────────────────┘
     ↓
 ┌─────────────────────────────────┐
-│    MLP CASCADE (21K)            │
-│    root → pattern → milui →     │
-│    → atbash (serial + backflow) │
+│    MLP CASCADE (58K)           │
+│    root → pattern → milui →    │
+│    → atbash (serial + backflow)│
 └─────────────────────────────────┘
     ↓
 ┌─────────────────────────────────┐
-│    META-OBSERVER (43K)          │
-│    Selects: orbit_word          │
-│    Selects: hidden_word         │
-│    Collapse decision            │
+│    META-OBSERVER (120K)        │
+│    Selects: orbit_word         │
+│    Selects: hidden_word        │
+│    Collapse decision           │
 └─────────────────────────────────┘
     ↓
 OUTPUT (3 words + N + metadata)

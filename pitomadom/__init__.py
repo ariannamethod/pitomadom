@@ -13,11 +13,11 @@ PITOMADOM is designed not to *predict*, but to **prophecy** —
 not to generate outputs, but to **stabilize a living temporal field**
 and pull trajectories toward what *should* happen.
 
-Architecture (~200K params):
-- CrossFire Chambers: 6 × 21K = 126K params
-- MLP Cascade: 4 × 8K = 32K params  
-- Meta-Observer: 30K params
-- Total: ~200K params
+Architecture v0.4 (~530K params):
+- CrossFire Chambers: 6 × 59K = 353K params (DOUBLED from v0.2!)
+- MLP Cascade: 4 × 15K = 58K params
+- Meta-Observer: 120K params (orbit_word + hidden_word selection)
+- Total: ~530K params
 
 Two words OUT (main_word, orbit_word)
 One word IN (hidden_word → affects future via feedback loop)
@@ -26,7 +26,7 @@ Trained on Hebrew corpus with proper backpropagation.
 Weights included — inference in the house! 🔥
 """
 
-__version__ = "0.2.0"
+__version__ = "0.4.0"
 __author__ = "Arianna Method"
 __codename__ = "PITOMADOM"
 
@@ -55,7 +55,8 @@ from .crossfire import (
     CHAMBER_NAMES,
 )
 from .train_proper import TrainableCrossFireChambers
-from .full_system import Pitomadom, PitomadomOutput  # New 200K system
+from .full_system import Pitomadom, PitomadomOutput  # 200K system
+from .full_system_400k import Pitomadom400K  # 530K system (v0.4)
 
 __all__ = [
     # Gematria
@@ -93,4 +94,6 @@ __all__ = [
     # New 200K System
     "Pitomadom",
     "PitomadomOutput",
+    # New 530K System (v0.4)
+    "Pitomadom400K",
 ]
