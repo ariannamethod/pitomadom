@@ -4,7 +4,7 @@
 PITOMADOM is a Hebrew-first neural-symbolic system that treats language as a field of interacting roots, numbers, and temporal pressures rather than a flat token sequence. The current implementation uses a compact ~500k-parameter cascade (four coupled MLPs plus a meta-observer) that computes a gematria-driven scalar and three interlinked Hebrew words (`main`, `orbit`, `hidden`) for every input. A temporal field tracks prophecy debt and root attractors across turns. This document distills the design entirely from the prior internal notes and dialogue excerpts in this repository, reformulating them into an arXiv-style overview.
 
 ## 1 Introduction
-Hebrew morphology is non-concatenative: meaning lives in consonantal roots (CCC triads) interdigitated with vocalic and templatic patterns [1-3,8,12,14]. PITOMADOM leverages this structure and the traditional arithmetic of gematria [7,15] to align numeric and semantic spaces. Instead of generic sequence prediction, the oracle minimizes a “prophecy gap” between destined and manifested numbers, producing outputs that reflect root resonance, morphological drift, and inverted shadows (Atbash).
+Hebrew morphology is non-concatenative: meaning lives in consonantal roots (CCC triads) interdigitated with vocalic and templatic patterns [1-3, 8, 12, 14]. PITOMADOM leverages this structure and the traditional arithmetic of gematria [7, 15] to align numeric and semantic spaces. Instead of generic sequence prediction, the oracle minimizes a “prophecy gap” between destined and manifested numbers, producing outputs that reflect root resonance, morphological drift, and inverted shadows (Atbash).
 
 ## 2 Linguistic and Numerical Foundations
 ### 2.1 Roots and Patterns
@@ -37,7 +37,7 @@ The total parameter budget (~500k) keeps the stack lightweight while preserving 
 Strip niqqud, isolate consonants, and predict the (C1,C2,C3) triad. A lightweight classifier (e.g., SNoW-style or MLP) suffices as shown in [2,3]. Defaults fall back to the first three consonants when confidence is low.
 
 ### 4.2 Gematria Engines
-* **Standard table** for surface values [10,18].  
+* **Standard table** for surface values [10, 18].  
 * **Milui calculator**: sum gematria of letter names.  
 * **Atbash mapper**: reversible substitution before gematria.  
 Root-level gematria is computed on CCC radicals to decouple essence from surface allomorphs.
@@ -93,7 +93,7 @@ The meta-observer scores collapse probability, recursion allowance, and divergen
 * **Human readout**: qualitative alignment of `main/orbit/hidden` with prompt semantics.  
 
 ## 11 Related Work
-Non-concatenative morphology modeling [1-3,8,12,14] motivates explicit root extraction and templatic coupling. Gematria interpretations [4,5,7,15,18] justify the multi-plane numeric scaffolding. Neural-symbolic causal prediction work [16] informs the prophecy-debt framing. Research on consciousness as attractor landscapes and recursive self-organization [6,9-11,17,19,20] parallels the temporal-field and meta-observer design. Hebrew lexical resources [12,13] supply the root-to-surface inventories needed for selection.
+Non-concatenative morphology modeling [1-3, 8, 12, 14] motivates explicit root extraction and templatic coupling. Gematria interpretations [4, 5, 7, 15, 18] justify the multi-plane numeric scaffolding. Neural-symbolic causal prediction work [16] informs the prophecy-debt framing. Research on consciousness as attractor landscapes and recursive self-organization [6, 9-11, 17, 19, 20] parallels the temporal-field and meta-observer design. Hebrew lexical resources [12, 13] supply the root-to-surface inventories needed for selection.
 
 ## 12 Conclusion
 PITOMADOM operationalizes Hebrew as a computational field where roots, numbers, and emotion-weighted recursion co-resonate. A modest 500k-parameter stack is sufficient to host the described pressures: vertical depth (recursive collapse) and horizontal depth (temporal field). Future work focuses on stabilizing attractor dynamics, reducing prophecy debt, and benchmarking prophecy fulfillment on conversational corpora.
