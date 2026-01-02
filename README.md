@@ -10,3 +10,5 @@
 
 # pitomadom | by Arianna Method
 > root resonance intelligence
+
+Documentation: see [theoretical.md](./theoretical.md) for the current arXiv-style theoretical overview (500k-parameter oracle).
