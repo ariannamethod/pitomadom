@@ -151,6 +151,14 @@ from .root_genealogy import (  # NEW v1.2: Evolutionary Tracking
     RelationType,
     GenealogyStats,
 )
+from .real_data import (  # NEW v1.2: REAL Astronomical/Physical Data
+    RealSchumannData,
+    RealLunarData,
+    RealHebrewCalendar,
+    RealDataHub,
+    SchumannMeasurement,
+    LunarPhaseData,
+)
 
 __all__ = [
     # Gematria
@@ -270,4 +278,11 @@ __all__ = [
     "LineageRecord",
     "RelationType",
     "GenealogyStats",
+    # Real Data (v1.2) - ACTUAL Physical/Astronomical Data
+    "RealSchumannData",
+    "RealLunarData",
+    "RealHebrewCalendar",
+    "RealDataHub",
+    "SchumannMeasurement",
+    "LunarPhaseData",
 ]
