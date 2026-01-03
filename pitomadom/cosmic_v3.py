@@ -371,31 +371,43 @@ class CosmicPitomadomV3(CosmicPitomadomV2):
         ))
 
         # 5. Quantum (from tunneling)
+        root_gem = root_gematria(v2_output.root)
+        gematria_aligned = root_gem % 11 == 0  # 11-day drift alignment
+
         if v2_output.quantum_method == "QUANTUM_TUNNEL":
             quantum_pred = v2_output.number + 50  # Jump prediction
             quantum_conf = v2_output.tunnel_probability
+        elif gematria_aligned:
+            # Boost when gematria aligns with drift constant
+            quantum_pred = v2_output.number + 11  # Small drift-aligned jump
+            quantum_conf = 0.5  # Moderate confidence
         else:
             quantum_pred = v2_output.number
             quantum_conf = 0.2
+
         predictions.append(MethodPrediction(
             method=ProphecyMethod.QUANTUM,
             predicted_value=quantum_pred,
             confidence=quantum_conf,
-            reasoning=f"Tunnel prob: {v2_output.tunnel_probability:.2f}"
+            reasoning=f"Tunnel prob: {v2_output.tunnel_probability:.2f}" +
+                      (", gematria aligned" if gematria_aligned else "")
         ))
 
         # 6. Grammatical (from tensor)
         if self.enable_grammatical:
-            gram_mod = self.prophecy_tensor.grammatical_prophecy_modifier(
+            raw_gram_mod = self.prophecy_tensor.grammatical_prophecy_modifier(
                 v2_output.root, root_gematria(v2_output.root), 'future'
             )
+            # Clamp modifier to reasonable range (0.8-1.2) to avoid extreme predictions
+            gram_mod = max(0.8, min(1.2, raw_gram_mod))
             gram_pred = int(v2_output.number * gram_mod)
-            gram_conf = 0.5 + 0.3 * abs(gram_mod - 1.0)
+            # Higher confidence when modifier is closer to 1.0 (more certain)
+            gram_conf = 0.6 + 0.3 * (1.0 - abs(gram_mod - 1.0))
             predictions.append(MethodPrediction(
                 method=ProphecyMethod.GRAMMATICAL,
                 predicted_value=gram_pred,
                 confidence=gram_conf,
-                reasoning=f"Grammatical modifier: {gram_mod:.2f}×"
+                reasoning=f"Grammatical modifier: {gram_mod:.2f}× (raw: {raw_gram_mod:.2f})"
             ))
 
         return predictions
