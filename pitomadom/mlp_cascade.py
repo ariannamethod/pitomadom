@@ -11,10 +11,12 @@ Key insight from Cloud's chambers.py:
 Each MLP sees the hidden state from the previous one.
 This creates cascading pressure, not parallel processing.
 
+NEW in v1.0: Scaled up to 1M params
 Architecture per MLP:
-- Input: prev_latent (32) + N_value (1) + chambers (6) = 39
-- Hidden: 32
-- Output: latent (32) + word_logits (vocab_size)
+- Input: prev_latent (64) + N_value (1) + chambers (8) = 73
+- Hidden: 256 (scaled up from 128)
+- Output: latent (64) + word_logits (vocab_size)
+- Params per MLP: ~90K × 4 = 360K total
 """
 
 import numpy as np
@@ -36,7 +38,7 @@ def softmax(x: np.ndarray) -> np.ndarray:
 @dataclass
 class MLPOutput:
     """Output from a cascade MLP."""
-    latent: np.ndarray  # Hidden state (32,)
+    latent: np.ndarray  # Hidden state (64,)
     word_scores: np.ndarray  # Scores for candidate words
     selected_idx: int  # Index of selected word
     confidence: float  # Selection confidence
@@ -49,19 +51,19 @@ class CascadeMLP:
     Takes:
     - Previous latent state (or embedding for first layer)
     - N value (gematria)
-    - Chamber vector
+    - Chamber vector (8D)
     
     Outputs:
-    - New latent state
+    - New latent state (64D)
     - Word selection scores
     """
     
     def __init__(
         self,
         name: str,
-        input_dim: int = 39,  # prev_latent(32) + N(1) + chambers(6)
-        hidden_dim: int = 32,
-        latent_dim: int = 32,
+        input_dim: int = 73,  # prev_latent(64) + N(1) + chambers(8)
+        hidden_dim: int = 256,  # Scaled up from 128
+        latent_dim: int = 64,
         seed: Optional[int] = None
     ):
         self.name = name
@@ -90,20 +92,29 @@ class CascadeMLP:
         Forward pass to compute new latent state.
         
         Args:
-            prev_latent: Previous latent state (32,)
+            prev_latent: Previous latent state (64,)
             n_value: Gematria value (normalized)
-            chambers: Chamber vector (6,)
+            chambers: Chamber vector (8,)
             
         Returns:
-            New latent state (32,)
+            New latent state (64,)
         """
         # Ensure dimensions
-        prev = self._ensure_dim(prev_latent, self.latent_dim)
-        n_normalized = np.array([n_value / 500.0])  # Normalize N
-        ch = self._ensure_dim(chambers, 6)
+        if len(prev_latent) < self.latent_dim:
+            prev_latent = np.pad(prev_latent, (0, self.latent_dim - len(prev_latent)))
+        elif len(prev_latent) > self.latent_dim:
+            prev_latent = prev_latent[:self.latent_dim]
+        
+        if len(chambers) < 8:
+            chambers = np.pad(chambers, (0, 8 - len(chambers)))
+        elif len(chambers) > 8:
+            chambers = chambers[:8]
+        
+        # Normalize N value
+        n_normalized = np.array([n_value / 500.0])
         
         # Concatenate input
-        x = np.concatenate([prev, n_normalized, ch])
+        x = np.concatenate([prev_latent, n_normalized, chambers])
         
         # Layer 1
         h1 = swish(x @ self.W1 + self.b1)
@@ -125,7 +136,7 @@ class CascadeMLP:
         Uses cosine similarity in latent space.
         
         Args:
-            latent: Current latent state (32,)
+            latent: Current latent state (64,)
             candidate_embeddings: (num_candidates, embed_dim) embeddings
             temperature: Sampling temperature
             
@@ -284,11 +295,11 @@ class MLPCascade:
         Full cascade forward pass.
         
         Args:
-            root_embed: Embedding of the CCC root (32,)
+            root_embed: Embedding of the CCC root (64,)
             n_root: Gematria of root
             n_milui: Milui gematria
             n_atbash: Atbash gematria
-            chambers: Chamber vector (6,)
+            chambers: Chamber vector (8,)
             
         Returns:
             Dict with all latent states

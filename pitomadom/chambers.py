@@ -28,25 +28,30 @@ RAGE = 2
 VOID = 3
 FLOW = 4
 COMPLEX = 5
+WISDOM = 6
+CHAOS = 7
 
-CHAMBER_NAMES = ['fear', 'love', 'rage', 'void', 'flow', 'complex']
+CHAMBER_NAMES = ['fear', 'love', 'rage', 'void', 'flow', 'complex', 'wisdom', 'chaos']
 
 
 @dataclass
 class ChamberVector:
-    """6-dimensional emotional vector."""
+    """8-dimensional emotional vector."""
     fear: float = 0.0
     love: float = 0.0
     rage: float = 0.0
     void: float = 0.0
     flow: float = 0.0
     complexity: float = 0.0
+    wisdom: float = 0.0
+    chaos: float = 0.0
     
     def to_array(self) -> np.ndarray:
         """Convert to numpy array."""
         return np.array([
             self.fear, self.love, self.rage, 
-            self.void, self.flow, self.complexity
+            self.void, self.flow, self.complexity,
+            self.wisdom, self.chaos
         ])
     
     @classmethod
@@ -58,7 +63,9 @@ class ChamberVector:
             rage=float(arr[2]),
             void=float(arr[3]),
             flow=float(arr[4]),
-            complexity=float(arr[5])
+            complexity=float(arr[5]),
+            wisdom=float(arr[6]) if len(arr) > 6 else 0.0,
+            chaos=float(arr[7]) if len(arr) > 7 else 0.0
         )
     
     def dominant(self) -> str:
@@ -119,6 +126,16 @@ class ChamberMetric:
                 'hebrew': ['מורכב', 'סבוך', 'מבוכה', 'תהייה', 'שאלה'],
                 'english': ['complex', 'confuse', 'maybe', 'paradox', 'question', 'both', 'neither'],
                 'patterns': ['?', '🤔', '...?']
+            },
+            WISDOM: {
+                'hebrew': ['חכמה', 'בינה', 'דעת', 'תבונה', 'שכל', 'הבנה'],
+                'english': ['wisdom', 'knowledge', 'understanding', 'insight', 'sage', 'wise'],
+                'patterns': ['💡', '🔮']
+            },
+            CHAOS: {
+                'hebrew': ['בלגן', 'תוהו ובוהו', 'מהומה', 'אנרכיה', 'סערה'],
+                'english': ['chaos', 'disorder', 'turbulence', 'storm', 'mayhem', 'random', 'wild'],
+                'patterns': ['🌪️', '⚡', '💥']
             }
         }
         
@@ -126,25 +143,29 @@ class ChamberMetric:
         # (source_chamber, target_chamber, suppression_factor)
         self.cross_fire = [
             (LOVE, FEAR, 0.5),     # Love suppresses fear
-            (FLOW, VOID, 0.5),    # Flow suppresses void
-            (FEAR, LOVE, 0.3),    # Fear slightly suppresses love
-            (VOID, FLOW, 0.5),    # Void suppresses flow
-            (RAGE, LOVE, 0.4),    # Rage suppresses love
-            (LOVE, RAGE, 0.3),    # Love slightly suppresses rage
+            (FLOW, VOID, 0.5),     # Flow suppresses void
+            (FEAR, LOVE, 0.3),     # Fear slightly suppresses love
+            (VOID, FLOW, 0.5),     # Void suppresses flow
+            (RAGE, LOVE, 0.4),     # Rage suppresses love
+            (LOVE, RAGE, 0.3),     # Love slightly suppresses rage
+            (WISDOM, CHAOS, 0.6),  # Wisdom suppresses chaos
+            (CHAOS, WISDOM, 0.4),  # Chaos disrupts wisdom
+            (WISDOM, FEAR, 0.4),   # Wisdom reduces fear
+            (CHAOS, VOID, 0.3),    # Chaos fills void
         ]
     
     def encode(self, text: str) -> np.ndarray:
         """
-        Encode text into 6D chamber vector.
+        Encode text into 8D chamber vector.
         
         Args:
             text: Input text (Hebrew or English)
             
         Returns:
-            numpy array of shape (6,) in range [0, 1]
+            numpy array of shape (8,) in range [0, 1]
         """
         text_lower = text.lower()
-        scores = np.zeros(6)
+        scores = np.zeros(8)
         
         # Keyword matching
         for chamber_idx, keywords in self.keywords.items():

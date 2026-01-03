@@ -102,7 +102,7 @@ class TestChambers(unittest.TestCase):
         metric = ChamberMetric()
         vector = metric.encode("test input")
         
-        self.assertEqual(len(vector), 6)
+        self.assertEqual(len(vector), 8)  # Now 8D instead of 6D
         self.assertTrue(all(0 <= v <= 1 for v in vector))
     
     def test_love_detection(self):
@@ -194,8 +194,8 @@ class TestMLPCascade(unittest.TestCase):
         
         cascade = MLPCascade(seed=42)
         
-        root_embed = np.random.randn(32)
-        chambers = np.random.rand(6)
+        root_embed = np.random.randn(64)  # Now 64D
+        chambers = np.random.rand(8)  # Now 8D
         
         latents = cascade.forward(
             root_embed=root_embed,
@@ -212,7 +212,7 @@ class TestMLPCascade(unittest.TestCase):
         
         # Check dimensions
         for name, latent in latents.items():
-            self.assertEqual(len(latent), 32)
+            self.assertEqual(len(latent), 64)  # Now 64D
     
     def test_param_count(self):
         from pitomadom.mlp_cascade import MLPCascade
@@ -583,3 +583,195 @@ class TestFullSystem400K(unittest.TestCase):
         cascade = CascadeMLP400K("test", seed=42)
         self.assertEqual(cascade.W1.shape, (48, 128))  # 128 instead of 64
         self.assertEqual(cascade.W2.shape, (128, 64))  # 64 instead of 32
+
+
+class TestTemporalFieldPersistence(unittest.TestCase):
+    """Test persistent temporal field (save/load state)."""
+    
+    def test_save_load_state(self):
+        import tempfile
+        import os
+        from pitomadom.temporal_field import TemporalField
+        
+        # Create field with some data
+        field = TemporalField()
+        field.update(100, ('א', 'ו', 'ר'), 0.5, 2, 95)
+        field.update(200, ('ש', 'ב', 'ר'), 0.6, 3, 190)
+        field.update(150, ('א', 'ה', 'ב'), 0.4, 1, 145)
+        
+        # Save state
+        temp_file = tempfile.mktemp(suffix='.pkl')
+        field.save_state(temp_file)
+        
+        # Load into new field
+        field2 = TemporalField()
+        field2.load_state(temp_file)
+        
+        # Verify trajectory preserved
+        self.assertEqual(field2.state.n_trajectory, [100, 200, 150])
+        
+        # Verify root counts preserved
+        self.assertEqual(field2.state.root_counts[('א', 'ו', 'ר')], 1)
+        self.assertEqual(field2.state.root_counts[('ש', 'ב', 'ר')], 1)
+        self.assertEqual(field2.state.root_counts[('א', 'ה', 'ב')], 1)
+        
+        # Verify prophecy debt preserved
+        self.assertGreater(field2.state.prophecy_debt, 0)
+        
+        # Clean up
+        os.remove(temp_file)
+    
+    def test_state_persistence_across_sessions(self):
+        import tempfile
+        import os
+        from pitomadom.temporal_field import TemporalField
+        
+        # Session 1: Build up state
+        field1 = TemporalField()
+        for i in range(5):
+            field1.update(100 + i*10, ('ש', 'ל', 'ם'), 0.5, 2, 100 + i*10)
+        
+        temp_file = tempfile.mktemp(suffix='.pkl')
+        field1.save_state(temp_file)
+        
+        # Session 2: Load and continue
+        field2 = TemporalField()
+        field2.load_state(temp_file)
+        
+        # Verify step counter
+        self.assertEqual(field2.state.step, 5)
+        
+        # Continue from where we left off
+        field2.update(200, ('א', 'ו', 'ר'), 0.6, 3, 195)
+        self.assertEqual(field2.state.step, 6)
+        self.assertEqual(len(field2.state.n_trajectory), 6)
+        
+        # Clean up
+        os.remove(temp_file)
+
+
+class TestRootTaxonomy(unittest.TestCase):
+    """Test hierarchical root taxonomy."""
+    
+    def test_family_lookup(self):
+        from pitomadom.root_taxonomy import RootTaxonomy
+        
+        taxonomy = RootTaxonomy()
+        
+        # Test specific roots
+        self.assertEqual(taxonomy.get_family(('א', 'ה', 'ב')), 'emotion_positive')
+        self.assertEqual(taxonomy.get_family(('פ', 'ח', 'ד')), 'emotion_negative')
+        self.assertEqual(taxonomy.get_family(('ש', 'ב', 'ר')), 'destruction')
+        self.assertEqual(taxonomy.get_family(('ב', 'ר', 'א')), 'creation')
+    
+    def test_related_roots(self):
+        from pitomadom.root_taxonomy import RootTaxonomy
+        
+        taxonomy = RootTaxonomy()
+        
+        # Love should have related emotions
+        related = taxonomy.get_related_roots(('א', 'ה', 'ב'))
+        self.assertGreater(len(related), 0)
+        self.assertNotIn(('א', 'ה', 'ב'), related)  # Should exclude itself
+    
+    def test_opposite_families(self):
+        from pitomadom.root_taxonomy import RootTaxonomy
+        
+        taxonomy = RootTaxonomy()
+        
+        # Creation and destruction are opposites
+        self.assertEqual(taxonomy.get_opposite_family('creation'), 'destruction')
+        self.assertEqual(taxonomy.get_opposite_family('destruction'), 'creation')
+        
+        # Light and darkness are opposites
+        self.assertEqual(taxonomy.get_opposite_family('light'), 'darkness')
+    
+    def test_root_analogy(self):
+        from pitomadom.root_taxonomy import RootTaxonomy
+        
+        taxonomy = RootTaxonomy()
+        
+        # love:hate :: create:?
+        love = ('א', 'ה', 'ב')
+        hate = ('ש', 'נ', 'א')
+        create = ('ב', 'ר', 'א')
+        
+        result = taxonomy.compute_root_analogy(love, hate, create)
+        
+        # Should return a destruction root
+        if result:
+            family = taxonomy.get_family(result)
+            self.assertEqual(family, 'destruction')
+    
+    def test_family_polarity(self):
+        from pitomadom.root_taxonomy import RootTaxonomy
+        
+        taxonomy = RootTaxonomy()
+        
+        # Positive emotions should have positive polarity
+        polarity = taxonomy.get_family_polarity(('א', 'ה', 'ב'))  # love
+        self.assertGreater(polarity, 0)
+        
+        # Negative emotions should have negative polarity
+        polarity = taxonomy.get_family_polarity(('פ', 'ח', 'ד'))  # fear
+        self.assertLess(polarity, 0)
+    
+    def test_taxonomy_stats(self):
+        from pitomadom.root_taxonomy import RootTaxonomy
+        
+        taxonomy = RootTaxonomy()
+        stats = taxonomy.get_stats()
+        
+        # Should have multiple families
+        self.assertGreater(stats['num_families'], 10)
+        
+        # Should have many roots
+        self.assertGreater(stats['total_roots'], 50)
+
+
+class Test8DChambers(unittest.TestCase):
+    """Test 8D emotional chambers (WISDOM and CHAOS added)."""
+    
+    def test_chamber_names(self):
+        from pitomadom.chambers import CHAMBER_NAMES
+        
+        # Should have 8 chambers
+        self.assertEqual(len(CHAMBER_NAMES), 8)
+        
+        # Should include new chambers
+        self.assertIn('wisdom', CHAMBER_NAMES)
+        self.assertIn('chaos', CHAMBER_NAMES)
+    
+    def test_8d_encoding(self):
+        from pitomadom.chambers import ChamberMetric
+        
+        metric = ChamberMetric()
+        
+        # Test wisdom detection
+        vector = metric.encode("חכמה")  # wisdom in Hebrew
+        self.assertEqual(len(vector), 8)
+        
+        # Wisdom dimension should be activated
+        wisdom_idx = 6  # WISDOM index
+        self.assertGreater(vector[wisdom_idx], 0)
+    
+    def test_8d_crossfire(self):
+        from pitomadom.crossfire import CrossFireChambers
+        
+        chambers = CrossFireChambers.random_init(seed=42)
+        
+        # Should have 8 chambers
+        self.assertEqual(len(chambers.chambers), 8)
+        
+        # Test stabilization with 8D input
+        input_vec = np.random.randn(100)
+        activations, iters, hiddens = chambers.stabilize(input_vec)
+        
+        # Should have 8 activations
+        self.assertEqual(len(activations), 8)
+        self.assertIn('WISDOM', activations)
+        self.assertIn('CHAOS', activations)
+
+
+if __name__ == '__main__':
+    unittest.main()

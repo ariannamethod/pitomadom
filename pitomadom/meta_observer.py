@@ -51,26 +51,30 @@ class MetaObserver:
     - risk_score: danger level
     - destiny_shift: adjustment to target N
     
-    Implemented as a small MLP (can be trained).
+    NEW in v1.0: Scaled up to 3-layer network (~150K params)
     """
     
     def __init__(
         self,
-        input_dim: int = 32,  # latent_atbash dimension
-        hidden_dim: int = 16,
+        input_dim: int = 64,  # latent_atbash dimension (now 64)
+        hidden_dim: int = 512,  # Scaled up from 256 to 512
         seed: Optional[int] = None
     ):
         """
         Initialize meta-observer with random weights.
         
-        Architecture:
-        - Input: latent_atbash (32) + chambers (6) + temporal (8) = 46
-        - Hidden: 16
+        Architecture (1M param target):
+        - Input: latent_atbash (64) + chambers (8) + temporal (8) = 80
+        - Hidden1: 512
+        - Hidden2: 256
+        - Hidden3: 128
         - Output: 4 (collapse_prob, recursion_pressure, risk_score, destiny_shift)
+        
+        Total params: ~270K (bringing total to ~810K)
         """
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
-        self.chambers_dim = 6
+        self.chambers_dim = 8
         self.temporal_dim = 8
         
         total_input = input_dim + self.chambers_dim + self.temporal_dim
@@ -78,12 +82,23 @@ class MetaObserver:
         if seed is not None:
             np.random.seed(seed)
         
-        # Xavier initialization
+        # Layer 1: input → hidden1
         self.W1 = np.random.randn(total_input, hidden_dim) * np.sqrt(2.0 / total_input)
         self.b1 = np.zeros(hidden_dim)
         
-        self.W2 = np.random.randn(hidden_dim, 4) * np.sqrt(2.0 / hidden_dim)
-        self.b2 = np.zeros(4)
+        # Layer 2: hidden1 → hidden2
+        hidden_dim2 = 256
+        self.W2 = np.random.randn(hidden_dim, hidden_dim2) * np.sqrt(2.0 / hidden_dim)
+        self.b2 = np.zeros(hidden_dim2)
+        
+        # Layer 3: hidden2 → hidden3
+        hidden_dim3 = 128
+        self.W3 = np.random.randn(hidden_dim2, hidden_dim3) * np.sqrt(2.0 / hidden_dim2)
+        self.b3 = np.zeros(hidden_dim3)
+        
+        # Layer 4: hidden3 → output
+        self.W4 = np.random.randn(hidden_dim3, 4) * np.sqrt(2.0 / hidden_dim3)
+        self.b4 = np.zeros(4)
         
         # Collapse threshold (learnable through experience)
         self.collapse_threshold = 0.6
@@ -98,8 +113,8 @@ class MetaObserver:
         Evaluate current state and make a decision.
         
         Args:
-            latent_atbash: Last embedding from atbash MLP (32,)
-            chambers: Chamber vector (6,)
+            latent_atbash: Last embedding from atbash MLP (64,)
+            chambers: Chamber vector (8,)
             temporal_field: TemporalField for accessing state
             
         Returns:
@@ -116,9 +131,11 @@ class MetaObserver:
         # Concatenate inputs
         x = np.concatenate([latent, chambers, temporal])
         
-        # Forward pass
+        # Forward pass (4-layer network)
         h1 = np.maximum(0, x @ self.W1 + self.b1)  # ReLU
-        output = h1 @ self.W2 + self.b2
+        h2 = np.maximum(0, h1 @ self.W2 + self.b2)  # ReLU
+        h3 = np.maximum(0, h2 @ self.W3 + self.b3)  # ReLU
+        output = h3 @ self.W4 + self.b4
         
         # Parse outputs with appropriate activations
         collapse_prob = self._sigmoid(output[0])
@@ -173,7 +190,10 @@ class MetaObserver:
     
     def param_count(self) -> int:
         """Total trainable parameters."""
-        return self.W1.size + self.b1.size + self.W2.size + self.b2.size
+        return (self.W1.size + self.b1.size + 
+                self.W2.size + self.b2.size + 
+                self.W3.size + self.b3.size + 
+                self.W4.size + self.b4.size)
     
     def save(self, path: str) -> None:
         """Save weights to file."""
@@ -183,6 +203,10 @@ class MetaObserver:
             b1=self.b1,
             W2=self.W2,
             b2=self.b2,
+            W3=self.W3,
+            b3=self.b3,
+            W4=self.W4,
+            b4=self.b4,
             collapse_threshold=self.collapse_threshold,
         )
     
@@ -192,13 +216,17 @@ class MetaObserver:
         data = np.load(path)
         
         observer = cls(
-            input_dim=data['W1'].shape[0] - 14,  # Subtract chambers + temporal dims
+            input_dim=data['W1'].shape[0] - 16,  # Subtract chambers(8) + temporal(8) dims
             hidden_dim=data['W1'].shape[1],
         )
         observer.W1 = data['W1']
         observer.b1 = data['b1']
         observer.W2 = data['W2']
         observer.b2 = data['b2']
+        observer.W3 = data['W3']
+        observer.b3 = data['b3']
+        observer.W4 = data['W4']
+        observer.b4 = data['b4']
         if 'collapse_threshold' in data:
             observer.collapse_threshold = float(data['collapse_threshold'])
         
