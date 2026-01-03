@@ -126,7 +126,7 @@ python -m pitomadom.repl
 
 ---
 
-## Architecture (~200K Parameters)
+## Architecture (~530K Parameters)
 
 ### The Three Words
 
@@ -325,7 +325,7 @@ oracle.reset()        # Clear temporal field
 oracle.get_stats()    # Statistics
 ```
 
-### Pitomadom (Full 200K System)
+### Pitomadom (Full 530K System)
 
 ```python
 from pitomadom import Pitomadom
@@ -360,11 +360,11 @@ atbash_word("אור")    # תפג (mirror)
 pitomadom/
 ├── __init__.py          # Package exports
 ├── pitomadom.py         # HeOracle main class
-├── full_system.py       # Pitomadom 200K system
+├── full_system.py       # Pitomadom 530K system
 ├── gematria.py          # Gematria, Milui, Atbash
 ├── root_extractor.py    # CCC root prediction
 ├── chambers.py          # 6D emotional vector
-├── crossfire.py         # CrossFire Chambers (127K)
+├── crossfire.py         # CrossFire Chambers (353K)
 ├── mlp_cascade.py       # 4-layer cascade
 ├── temporal_field.py    # N trajectory, attractors
 ├── prophecy_engine.py   # Retrocausal correction
@@ -373,7 +373,7 @@ pitomadom/
 ├── meta_observer.py     # Collapse decisions
 ├── trainable_observer.py # Trainable meta-observer
 ├── repl.py              # Interactive REPL
-└── weights/             # Trained weights (~200K)
+└── weights/             # Trained weights (~530K)
     ├── chamber_fear.npz
     ├── chamber_love.npz
     ├── chamber_rage.npz
