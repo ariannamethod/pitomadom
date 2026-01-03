@@ -433,10 +433,18 @@ class CosmicPitomadomV3(CosmicPitomadomV2):
             method_predictions = self._collect_method_predictions(v2_output, current_date)
             ensemble_result = self.ensemble.predict(method_predictions)
 
-            # Place bets in market if enabled
+            # Place bets and resolve in market if enabled
             if self.market:
+                stakes = {}
                 for pred in method_predictions:
-                    self.market.place_bet(pred.method, pred.predicted_value, pred.confidence)
+                    stake = self.market.place_bet(pred.method, pred.predicted_value, pred.confidence)
+                    stakes[pred.method] = stake
+
+                # Resolve bets: dominant method wins
+                for pred in method_predictions:
+                    was_winner = pred.method == ensemble_result.dominant_method
+                    accuracy_bonus = 0.2 if was_winner else 0.0
+                    self.market.resolve_bet(pred.method, stakes[pred.method], was_winner, accuracy_bonus)
         else:
             ensemble_result = EnsembleResult(
                 consensus_value=v2_output.number,
