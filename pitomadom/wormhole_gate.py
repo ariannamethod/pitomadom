@@ -124,7 +124,7 @@ class WormholeGate:
     """
 
     # Wormhole constants
-    MIN_DISSONANCE_FOR_WORMHOLE = 0.4  # Minimum dissonance to open wormhole
+    MIN_DISSONANCE_FOR_WORMHOLE = 0.3  # Minimum dissonance to open wormhole
     DRIFT_CONSTANT = 11  # Days of drift per year
     STABILITY_DECAY = 0.1  # Stability decreases with distance
 
