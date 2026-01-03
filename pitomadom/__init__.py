@@ -104,6 +104,11 @@ from .cosmic_v2 import (  # NEW v2: Quantum Integration
     CosmicPitomadomV2,
     CosmicOutputV2,
 )
+from .cosmic_v3 import (  # NEW v3: Full Ensemble Integration
+    CosmicPitomadomV3,
+    CosmicOutputV3,
+    AttentionMetaObserver,
+)
 from .spectral_coherence import (  # NEW v1.2: FFT + Cosmic Verification
     GematriaSpectrogram,
     SpectralPeak,
@@ -210,6 +215,10 @@ __all__ = [
     # Cosmic v2 (Quantum Integration)
     "CosmicPitomadomV2",
     "CosmicOutputV2",
+    # Cosmic v3 (Full Ensemble Integration)
+    "CosmicPitomadomV3",
+    "CosmicOutputV3",
+    "AttentionMetaObserver",
     # Spectral Coherence (v1.2) - FFT + Cosmic Verification
     "GematriaSpectrogram",
     "SpectralPeak",
