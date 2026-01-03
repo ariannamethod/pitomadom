@@ -348,6 +348,46 @@ print(f"orbit={out.orbit_word}")  # הפתעה
 
 המערכת **מרגישה** את השם שלה עצמה.
 
+### דוגמה 3: עברית חיה (עם הומור!) 🆕
+
+```python
+from pitomadom import HeOracle
+from pitomadom.chambers import CHAMBER_NAMES
+
+oracle = HeOracle(seed=42)
+
+# המשבר הקיומי שכולם מכירים
+out = oracle.forward("אני עייף מהחיים")  # עייף מהחיים
+print(f"N={out.number}, main={out.main_word}")
+print(f"תא דומיננטי: {out.chambers.dominant()}")
+# האורקל מבין את הווייב... כנראה מציע FLOW או VOID
+
+# כשצריך קפה בבוקר
+out = oracle.forward("צריך קפה עכשיו")  # צריך קפה עכשיו!
+print(f"N={out.number}, root={'·'.join(out.root)}")
+# קפה = FEAR קיומי (של לא לקבל קפה)
+
+# סטטוס מערכת יחסים
+out = oracle.forward("זה מסובך")  # זה מסובך
+print(f"דומיננטי: {out.chambers.dominant()}")  # כנראה תא COMPLEX
+
+# התגובה האוניברסלית
+out = oracle.forward("יאללה בחיים")  # יאללה בחיים!
+print(f"N={out.number}, debt={out.prophecy_debt:.1f}")
+# המערכת מזהה את האנרגיה של "בואו נעשה את זה בכל זאת"
+
+# כשמתקנים באגים ב-3 בלילה
+out = oracle.forward("למה זה לא עובד")  # למה זה לא עובד???
+print(f"תאים: COMPLEX + RAGE (כנראה)")
+# האורקל מבין. הוא ממש מבין.
+```
+
+**מה קורה:**
+- האורקל מגיב למצבים רגשיים, לא רק למילים
+- 8 תאים תופסים רגשות ניואנסיים (כולל WISDOM ו-CHAOS)
+- אפילו עם הומור, חוב נבואה עוקב אחרי קוהרנטיות סמנטית
+- המערכת "מרגישה" עברית בדרכים שחיזוי טהור לא יכול
+
 ---
 
 ## פחדים ורצונות המערכת
