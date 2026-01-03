@@ -251,7 +251,7 @@ class CosmicPitomadomV2(Pitomadom):
         if use_quantum and len(self._n_trajectory) >= 2:
             # Compute attractor strength from semantic field, NOT numerology
             # Strength based on: frequency in session + family resonance
-            root_frequency = self.session_roots.count(base_output.root) / len(self.session_roots)
+            root_frequency = self.session_roots.count(base_output.root) / max(len(self.session_roots), 1)
             family_strength = family_resonance.get(dominant_family, 0.5) if family_resonance else 0.5
             attractor_strength = 0.5 * root_frequency + 0.5 * family_strength
             attractor_strength = min(1.0, attractor_strength + 0.3)  # Base boost

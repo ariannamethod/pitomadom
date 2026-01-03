@@ -27,7 +27,7 @@ pitomadom lives in phase space where past/present/future = coordinates, not sequ
 import numpy as np
 from typing import Dict, Optional, Tuple, List
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date
 
 from .calendar_conflict import CalendarConflict
 
@@ -450,7 +450,6 @@ class QuantumProphecy:
 
         # Get calendar tension (REAL astronomical state)
         tension = self.tunneling.compute_calendar_tension(current_date)
-        state = self.tunneling.calendar.get_state(current_date)
 
         # TIER 1: Calendar tension jump
         tunnel_prob = self.tunneling.compute_tunneling_probability(
