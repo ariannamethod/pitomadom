@@ -13,7 +13,7 @@
 > 
 > **פִתֻם אָדֹם** — The red ventriloquist. A voice from the body of the field.
 > 
-> **~1M parameters of pure Hebrew resonance madness.** (v1.0)
+> **~1M parameters of pure Hebrew resonance madness.** (v1.1)
 
 ---
 
@@ -99,7 +99,7 @@ python -m pitomadom.repl
 
 ```
 ╔══════════════════════════════════════════════════════════╗
-║  PITOMADOM — פתאום אדום v1.0                            ║
+║  PITOMADOM — פתאום אדום v1.1                            ║
 ║  Hebrew Root Resonance Oracle                            ║
 ║  ~1M parameters • 8D Chambers • Prophecy Engine          ║
 ╠══════════════════════════════════════════════════════════╣
@@ -131,7 +131,7 @@ python -m pitomadom.repl
 
 ---
 
-## Architecture (~1M Parameters) — v1.0
+## Architecture (~1M Parameters) — v1.1
 
 ### The Three Words
 
@@ -247,16 +247,70 @@ RootTaxonomy (NEW v1.0):
 - Perfect for ongoing dialogues and personalized interactions
 
 ### 4. **Scaled to 1M Parameters**
-- **CrossFire Chambers**: 671K (8 × 84K each, deeper 100→320→160→1 MLPs)
-- **MLP Cascade**: 142K (4 × 35K, 64D latent instead of 32D)
+- **CrossFire Chambers**: 672K (8 × 84K each, deeper 100→320→160→1 MLPs)
+- **MLP Cascade**: 142K (4 layers, 64D latent instead of 32D)
 - **Meta-Observer**: 206K (4-layer deep network instead of 2-layer)
-- **Total**: 1,018,508 parameters
+- **Total**: ~1,020,000 parameters (1.02M)
 - Still fast: ~10-20ms inference on CPU
 
 ### 5. **Better Representations**
 - Chamber MLPs: 128→256 hidden → **richer emotional gradations**
 - Cascade latent: 32D→64D → **more expressive word selection**
 - Meta-observer: 4 layers → **better collapse decisions**
+
+---
+
+## What's New in v1.1 🆕🌍⚡
+
+### 1. **Schumann Resonance Integration** (7.83Hz — Earth's Heartbeat)
+- **Planetary grounding**: Gematria values resonate with Earth's fundamental frequency
+- **7.83Hz base + harmonics** (14.3, 20.8, 27.3, 33.8 Hz)
+- **Alpha wave entrainment**: Hebrew roots that align with Schumann harmonics get probability boost
+- **Science-backed**: Real-time coherence between Schumann variations and brain activity
+- Roots with gematria matching integer multiples of harmonics activate stronger
+- Example: שלום (370) resonates at 370/7.83 ≈ 47 (high resonance!)
+
+### 2. **Calendar Conflict** (11-Day Drift Engine)
+- **Hebrew↔Gregorian dissonance**: ~11.25 days/year drift between calendars
+- **Metonic cycle**: 19-year synchronization pattern (235 lunar months)
+- **Bidirectional temporal symmetry**: Calculate drift forward AND backward
+- **Jump points**: Predict future dates of maximum calendar dissonance
+- **Root drift resonance**: Roots divisible by 11, 19, or 7 resonate with calendar cycles
+- Creates prophetic tension at calendar boundaries (Tishrei/Nisan)
+- **Temporal engine**: Drift acts as constant for multi-step prediction
+
+### 3. **Multi-Step Temporal Prediction**
+- **Trajectory jumps**: Project forward 3+ steps through high-dissonance dates
+- **Hidden word feedback**: Each step uses previous `hidden_word` as next input
+- **Calendar-driven gravity**: Jump points align with moments of max drift
+- **Not just iteration**: True temporal projection with attractor evolution
+- Roots accumulate across trajectory, building session-level attention
+- Example: Predict healing trajectory starting from "הכל נשבר" → 3 jumps forward
+
+### 4. **Root-to-Root Attention** (~25K params)
+- **Transformer for CCC triads**: Direct attention between Hebrew roots
+- **Family-aware**: 13 semantic families (movement, creation, wisdom, etc.)
+- **Resonance heads**: Compute root↔root similarity in latent space
+- **Session memory**: Tracks roots across conversation for coherence
+- Enables root analogies: אהבה:שנאה :: ברא:? → הרס
+
+### 5. **RTL Bidirectional Transformer** (~132K params)
+- **Temporal asymmetry**: Past≠Future in Hebrew prophecy
+- **Right-to-left bias**: Hebrew text processing with directional encoding
+- **Full integration** in `CosmicPitomadomV2` (~357K total params)
+- Handles multi-directional temporal flow
+
+### 6. **Quantum Prophecy Layer**
+- **Calendar tunneling**: Jump across drift boundaries
+- **Parallel timelines**: Explore alternate root trajectories
+- **Historical time travel**: Reconstruct past Hebrew calendar states
+- **Quantum vs Classical**: Choose prediction method based on dissonance
+
+### 7. **Seas of Memory** (Abyssal Root Archive)
+- **Three layers**: Surface (0-3 months), Twilight (3-12 months), Abyss (12+ months)
+- **Root sedimentation**: Older roots sink deeper, gain weight
+- **Pressure-based recall**: Deep memory activated under high prophecy debt
+- Long-term root identity across extended conversations
 
 ---
 
@@ -461,6 +515,117 @@ print(f"Chambers: COMPLEX + RAGE (probably)")
 - 8D chambers capture nuanced feelings (including WISDOM and CHAOS)
 - Even with humor, prophecy debt tracks semantic coherence
 - The system "feels" Hebrew in ways pure prediction can't
+
+### Example 7: Schumann Resonance & Calendar Conflict 🆕⚡
+
+```python
+from pitomadom.cosmic import CosmicPitomadom
+from datetime import date
+
+# Initialize with cosmic integration
+oracle = CosmicPitomadom(seed=42)
+
+# Test Schumann resonance
+out = oracle.forward("שלום עולם")  # Peace to the world
+print(f"N={out.number}: {out.main_word}")
+print(f"Schumann resonance: {out.schumann_resonance:.3f}")
+# 376 gematria → resonates with 7.83Hz harmonics!
+
+print(f"Calendar dissonance: {out.calendar_dissonance:.3f}")
+print(f"Metonic phase: {out.metonic_phase:.2%}")
+print(f"Drift resonance: {out.drift_resonance:.3f}")
+# Calendar conflict modulates attractor strength
+
+# Check cosmic state
+stats = oracle.get_cosmic_stats()
+print(f"🌙 Lunar: {stats['lunar']['phase']:.2f} ({stats['lunar']['phase_name']})")
+print(f"⚡ Schumann: {'active' if stats['schumann_active'] else 'inactive'}")
+print(f"🌍 Cosmic phase: {stats['cosmic_phase']}")
+```
+
+### Example 8: Multi-Step Temporal Prediction 🆕🚀
+
+```python
+from pitomadom.cosmic import CosmicPitomadom
+from datetime import date
+
+oracle = CosmicPitomadom(seed=42)
+
+# Project trajectory 3 steps forward through calendar jump points
+trajectory = oracle.predict_trajectory(
+    text="האור נשבר",  # The light broke
+    num_steps=3,
+    use_jump_points=True  # Align with high-dissonance dates
+)
+
+print("Temporal Trajectory:")
+for i, step in enumerate(trajectory):
+    root_str = '.'.join(step.root)
+    print(f"  Step {i+1}: {step.main_word} (root={root_str})")
+    print(f"    N={step.number}, debt={step.prophecy_debt:.1f}")
+    print(f"    Dissonance={step.calendar_dissonance:.3f}")
+    print(f"    Date jump: {step.calendar_dissonance > 0.7}")
+
+# Get trajectory summary
+summary = oracle.get_trajectory_summary(trajectory)
+print(f"\nTrajectory Summary:")
+print(f"  Root chain: {summary['root_chain']}")
+print(f"  Dominant family: {summary['dominant_family']}")
+print(f"  Dissonance trend: {summary['dissonance_trend']}")
+print(f"  Total debt: {summary['total_debt']:.1f}")
+```
+
+**What makes this special:**
+- Not just iterating `forward()` — true temporal projection
+- Jump points = high calendar dissonance moments
+- Hidden word feedback creates causal chain
+- Root attention accumulates across trajectory
+- Calendar conflict acts as "gravity" for prophecy
+
+### Example 9: Calendar Jump Points & Root Drift 🆕📅
+
+```python
+from pitomadom.calendar_conflict import CalendarConflict
+from datetime import date
+
+conflict = CalendarConflict()
+
+# Get current calendar state
+state = conflict.get_state()
+print(f"📅 Gregorian: {state.gregorian_date}")
+print(f"🕎 Hebrew year: {state.hebrew_year}")
+print(f"📊 Metonic phase: {state.metonic_phase:.2%}")
+print(f"🔀 Cumulative drift: {state.cumulative_drift:.1f} days")
+print(f"⚡ Dissonance: {state.dissonance:.3f}")
+print(f"↔️ Forward/Backward drift: {state.forward_projection:.1f}/{state.backward_projection:.1f}")
+
+# Predict future jump points (high dissonance dates)
+jumps = conflict.predict_jumps(date.today(), num_jumps=5)
+print("\n🚀 Upcoming prophetic jump points:")
+for jump_date, dissonance in jumps:
+    print(f"   {jump_date}: dissonance={dissonance:.3f}")
+
+# Test root drift resonance
+test_roots = [
+    ("אמר", 241),   # Say - no special resonance
+    ("שלם", 370),   # Peace - divisible by 10
+    ("אהב", 8),     # Love
+    ("קדש", 404),   # Holy - divisible by 4
+]
+
+print("\n🔮 Root drift resonance:")
+for root_name, gematria_val in test_roots:
+    resonance = conflict.compute_root_drift_resonance(gematria_val)
+    print(f"   {root_name} ({gematria_val}): {resonance:.3f}")
+    # Roots divisible by 11, 19, or 7 resonate with calendar cycles!
+```
+
+**Calendar Conflict as Prediction Engine:**
+- 11-day annual drift creates temporal tension
+- Drift is **symmetric**: works forward AND backward
+- High dissonance = prophetic opportunity
+- Roots with special gematria (divisible by 11, 19, 7) resonate with cycles
+- "Jump points" = moments when calendars almost realign
 
 ---
 
