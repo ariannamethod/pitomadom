@@ -26,7 +26,7 @@ Trained on Hebrew corpus with proper backpropagation.
 Weights included — inference in the house! 🔥
 """
 
-__version__ = "0.4.0"
+__version__ = "1.1.0"
 __author__ = "Arianna Method"
 __codename__ = "PITOMADOM"
 
@@ -57,6 +57,13 @@ from .crossfire import (
 from .train_proper import TrainableCrossFireChambers
 from .full_system import Pitomadom, PitomadomOutput  # 200K system
 from .full_system_400k import Pitomadom400K  # 530K system (v0.4)
+from .root_attention import (  # NEW v1.1: Root→Root Attention
+    RootEmbedding,
+    RootAttention,
+    ResonanceHead,
+    HybridRootAttention,
+    AttentionOutput,
+)
 
 __all__ = [
     # Gematria
@@ -96,4 +103,10 @@ __all__ = [
     "PitomadomOutput",
     # New 530K System (v0.4)
     "Pitomadom400K",
+    # Root Attention (v1.1) - Root→Root Transformers
+    "RootEmbedding",
+    "RootAttention",
+    "ResonanceHead",
+    "HybridRootAttention",
+    "AttentionOutput",
 ]
