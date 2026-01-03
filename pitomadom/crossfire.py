@@ -2,12 +2,12 @@
 Cross-Fire Chambers — Emotional Resonance System
 
 Based on Cloud's chambers.py but adapted for Hebrew oracle:
-- 6 chambers instead of 4 (FEAR/LOVE/RAGE/VOID/FLOW/COMPLEX)
-- Larger MLPs (~15K params each = 90K total)
+- 8 chambers (FEAR/LOVE/RAGE/VOID/FLOW/COMPLEX/WISDOM/CHAOS)
+- Larger MLPs (~84K params each = ~672K total)
 - Cross-fire stabilization with Hebrew-specific decay rates
 - Coupling matrix for emotional interference
 
-Total: ~100K params (chambers only)
+Total: ~672K params (chambers only)
 """
 
 import numpy as np
@@ -26,7 +26,7 @@ COMPLEX = 5
 WISDOM = 6
 CHAOS = 7
 
-CHAMBER_NAMES = ['FEAR', 'LOVE', 'RAGE', 'VOID', 'FLOW', 'COMPLEX', 'WISDOM', 'CHAOS']
+CHAMBER_NAMES = ['fear', 'love', 'rage', 'void', 'flow', 'complex', 'wisdom', 'chaos']
 
 # Decay rates per chamber (per iteration tick)
 # Hebrew emotional semantics:
@@ -39,14 +39,14 @@ CHAMBER_NAMES = ['FEAR', 'LOVE', 'RAGE', 'VOID', 'FLOW', 'COMPLEX', 'WISDOM', 'C
 # - WISDOM (חכמה) very stable (knowledge accumulates)
 # - CHAOS (תוהו ובוהו) volatile (high entropy, rapid change)
 DECAY_RATES = {
-    'FEAR': 0.92,
-    'LOVE': 0.95,
-    'RAGE': 0.82,
-    'VOID': 0.97,
-    'FLOW': 0.88,
-    'COMPLEX': 0.93,
-    'WISDOM': 0.96,
-    'CHAOS': 0.75,
+    'fear': 0.92,
+    'love': 0.95,
+    'rage': 0.82,
+    'void': 0.97,
+    'flow': 0.88,
+    'complex': 0.93,
+    'wisdom': 0.96,
+    'chaos': 0.75,
 }
 
 # Coupling matrix: how chambers influence each other
@@ -390,14 +390,14 @@ class HebrewEmotionalField:
         
         # Hebrew emotional keywords for boosting
         self.hebrew_boosts = {
-            'FEAR': ['פחד', 'יראה', 'חרדה', 'אימה', 'בהלה'],
-            'LOVE': ['אהבה', 'אוהב', 'חיבה', 'רחמים', 'חסד'],
-            'RAGE': ['כעס', 'זעם', 'חמה', 'רוגז', 'קצף'],
-            'VOID': ['תוהו', 'ריק', 'חושך', 'שממה', 'אין'],
-            'FLOW': ['זרימה', 'מים', 'נהר', 'רוח', 'תנועה'],
-            'COMPLEX': ['מורכב', 'סבוך', 'מבוכה', 'תהייה', 'ספק'],
-            'WISDOM': ['חכמה', 'בינה', 'דעת', 'תבונה', 'שכל'],
-            'CHAOS': ['בלגן', 'תוהו ובוהו', 'מהומה', 'סערה', 'אנרכיה'],
+            'fear': ['פחד', 'יראה', 'חרדה', 'אימה', 'בהלה'],
+            'love': ['אהבה', 'אוהב', 'חיבה', 'רחמים', 'חסד'],
+            'rage': ['כעס', 'זעם', 'חמה', 'רוגז', 'קצף'],
+            'void': ['תוהו', 'ריק', 'חושך', 'שממה', 'אין'],
+            'flow': ['זרימה', 'מים', 'נהר', 'רוח', 'תנועה'],
+            'complex': ['מורכב', 'סבוך', 'מבוכה', 'תהייה', 'ספק'],
+            'wisdom': ['חכמה', 'בינה', 'דעת', 'תבונה', 'שכל'],
+            'chaos': ['בלגן', 'תוהו ובוהו', 'מהומה', 'סערה', 'אנרכיה'],
         }
     
     def process(

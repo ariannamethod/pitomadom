@@ -111,7 +111,7 @@ def format_stats(oracle):
     try:
         if hasattr(oracle, 'param_count'):
             param_count = oracle.param_count()
-    except:
+    except (AttributeError, TypeError):
         param_count = "~1M"
     
     return f"""
