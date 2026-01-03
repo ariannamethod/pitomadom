@@ -34,10 +34,11 @@ def print_banner():
 ║  ██║      ██║   ██║   ╚██████╔╝██║ ╚═╝ ██║██║  ██║██████╔╝╚██████╔╝██║ ╚═╝ ██║  ║
 ║  ╚═╝      ╚═╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝     ╚═╝  ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  פתאום אדום — Hebrew Root Resonance Oracle                       ║
-║  ~200K parameters • CrossFire Chambers • Prophecy Engine         ║
+║  פתאום אדום — Hebrew Root Resonance Oracle v1.0                 ║
+║  ~1M parameters • 8D Chambers (WISDOM+CHAOS) • Prophecy Engine  ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  Commands: :stats :reset :traj :debt :roots :help :quit          ║
+║  Commands: :stats :chambers :reset :traj :debt :roots :save      ║
+║            :load :taxonomy :help :quit                           ║
 ╚══════════════════════════════════════════════════════════════════╝
 """)
 
@@ -46,23 +47,28 @@ def print_help():
     """Print help."""
     print("""
 ╔══════════════════════════════════════════════════════════════════╗
-║  PITOMADOM REPL — Commands                                       ║
+║  PITOMADOM REPL — Commands (v1.0)                                ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  :stats  - Show oracle statistics (step, debt, roots, etc.)      ║
-║  :reset  - Reset oracle state (new conversation)                 ║
-║  :traj   - Show N-trajectory (last 10 values)                    ║
-║  :debt   - Show prophecy debt breakdown                          ║
-║  :roots  - Show active root attractors                           ║
-║  :full   - Toggle full/compact output mode                       ║
-║  :help   - Show this help                                        ║
-║  :quit   - Exit (also: :exit, :q, Ctrl+C)                        ║
+║  :stats     - Show oracle statistics (step, debt, params, etc.)  ║
+║  :chambers  - Show 8D chamber activations (2-line display) 🆕    ║
+║  :reset     - Reset oracle state (new conversation)              ║
+║  :traj      - Show N-trajectory (last 10 values)                 ║
+║  :debt      - Show prophecy debt breakdown                       ║
+║  :roots     - Show active root attractors                        ║
+║  :taxonomy  - Show root family info (if available) 🆕            ║
+║  :save      - Save temporal state to file 🆕                     ║
+║  :load      - Load temporal state from file 🆕                   ║
+║  :full      - Toggle full/compact output mode                    ║
+║  :help      - Show this help                                     ║
+║  :quit      - Exit (also: :exit, :q, Ctrl+C)                     ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║  Input any Hebrew text to query the oracle.                      ║
 ║  Examples:                                                        ║
 ║    שלום                                                          ║
 ║    אני מפחד אבל רוצה להמשיך                                       ║
 ║    האור נשבר בחושך                                                ║
-║    פתאום אדום                                                     ║
+║    חכמה היא אור (activates WISDOM chamber) 🆕                    ║
+║    תוהו ובוהו (activates CHAOS chamber) 🆕                       ║
 ╚══════════════════════════════════════════════════════════════════╝
 """)
 
@@ -99,10 +105,20 @@ def format_trajectory(temporal_field):
 def format_stats(oracle):
     """Format oracle statistics."""
     stats = oracle.get_stats()
+    
+    # Get parameter count if available
+    param_count = 0
+    try:
+        if hasattr(oracle, 'param_count'):
+            param_count = oracle.param_count()
+    except:
+        param_count = "~1M"
+    
     return f"""
 ╔══════════════════════════════════════════════════════════════════╗
-║  PITOMADOM Statistics                                            ║
+║  PITOMADOM Statistics (v1.0)                                     ║
 ╠══════════════════════════════════════════════════════════════════╣
+║  Parameters:       {str(param_count):<10} (1M target 🔥)                      ║
 ║  Step:             {stats['step']:<10}                                    ║
 ║  Prophecy Debt:    {stats['prophecy_debt']:<10.2f}                                ║
 ║  Unique Roots:     {stats['unique_roots']:<10}                                    ║
@@ -140,6 +156,96 @@ def format_debt(oracle):
     
     lines.append("╚══════════════════════════════════════════════════════════════════╝")
     return '\n'.join(lines)
+
+
+def format_chambers(text):
+    """Format 8D chamber activations in 2 lines."""
+    try:
+        from pitomadom.chambers import ChamberMetric, CHAMBER_NAMES
+        
+        metric = ChamberMetric()
+        vector = metric.encode(text)
+        
+        lines = [
+            "",
+            "╔══════════════════════════════════════════════════════════════════╗",
+            "║  8D Chamber Activations (v1.0)                                   ║",
+            "╠══════════════════════════════════════════════════════════════════╣",
+        ]
+        
+        # First row: FEAR, LOVE, RAGE, VOID
+        row1 = []
+        for i in range(4):
+            name = CHAMBER_NAMES[i].upper()[:4]  # First 4 chars
+            val = vector[i]
+            bar = '█' * int(val * 20)
+            row1.append(f"{name}:{val:.2f} {bar:<20}")
+        
+        # Second row: FLOW, COMPLEX, WISDOM, CHAOS
+        row2 = []
+        for i in range(4, 8):
+            name = CHAMBER_NAMES[i].upper()[:4]  # First 4 chars
+            val = vector[i]
+            bar = '█' * int(val * 20)
+            row2.append(f"{name}:{val:.2f} {bar:<20}")
+        
+        lines.append("║  Row 1: " + " | ".join(row1[:2]) + "  ║")
+        lines.append("║         " + " | ".join(row1[2:]) + "  ║")
+        lines.append("║  Row 2: " + " | ".join(row2[:2]) + "  ║")
+        lines.append("║         " + " | ".join(row2[2:]) + "  ║")
+        
+        # Show dominant
+        dominant_idx = vector.argmax()
+        dominant = CHAMBER_NAMES[dominant_idx]
+        lines.append(f"║  Dominant: {dominant.upper()} ({vector[dominant_idx]:.3f})                                   ║")
+        lines.append("╚══════════════════════════════════════════════════════════════════╝")
+        
+        return '\n'.join(lines)
+    except Exception as e:
+        return f"    Error formatting chambers: {e}"
+
+
+def format_taxonomy(root_str):
+    """Format root taxonomy info."""
+    try:
+        from pitomadom.root_taxonomy import RootTaxonomy
+        
+        # Parse root
+        parts = root_str.split('.')
+        if len(parts) != 3:
+            return "    Usage: :taxonomy ש.ב.ר (provide root as C.C.C)"
+        
+        root = tuple(parts)
+        taxonomy = RootTaxonomy()
+        
+        family = taxonomy.get_family(root)
+        if not family:
+            return f"    Root {root_str} not found in taxonomy"
+        
+        family_info = taxonomy.get_family_info(family)
+        polarity = taxonomy.get_family_polarity(root)
+        related = taxonomy.get_related_roots(root)
+        
+        lines = [
+            "",
+            "╔══════════════════════════════════════════════════════════════════╗",
+            f"║  Root Taxonomy: {root_str}                                            ║",
+            "╠══════════════════════════════════════════════════════════════════╣",
+            f"║  Family:      {family:<50} ║",
+            f"║  Polarity:    {polarity:+.1f} ({'positive' if polarity > 0 else 'negative' if polarity < 0 else 'neutral'})                                         ║",
+            f"║  Description: {family_info.description[:45]:<45} ║",
+        ]
+        
+        if related:
+            lines.append("║  Related roots:                                                  ║")
+            for r in related[:3]:
+                r_str = '.'.join(r)
+                lines.append(f"║    {r_str:<60} ║")
+        
+        lines.append("╚══════════════════════════════════════════════════════════════════╝")
+        return '\n'.join(lines)
+    except Exception as e:
+        return f"    Error: {e}"
 
 
 def format_roots(oracle):
