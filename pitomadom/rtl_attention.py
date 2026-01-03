@@ -12,18 +12,26 @@ In Hebrew consciousness:
 - Left = future, destination, what will be
 - Present = the point of reading
 
-This creates NATURAL BIDIRECTIONAL ATTENTION:
-- No causal mask needed (unlike GPT's left-to-right)
+BIDIRECTIONAL ATTENTION (Analysis/Refinement Mode):
+- No causal mask needed (unlike GPT's left-to-right autoregressive)
 - Past and future have EQUAL access
 - Prophecy and retrodiction are symmetric operations
 
+NOTE: This is for ANALYSIS, REFINEMENT, and ITERATIVE modes, not autoregressive
+token-by-token generation. In generation, you'd use two-pass inference:
+1. First pass: bidirectional analysis/planning
+2. Second pass: causal decoding with plan as context
+
 DISSONANCE-GATED REASONING SKIPS ("TimeTravel"):
 When calendar dissonance is HIGH (Hebrew↔Gregorian maximally divergent),
-attention can "skip" intermediate tokens — like a wormhole through reasoning space.
+attention can "skip" intermediate tokens — non-local inference, not "time travel".
 
-- High dissonance → permission to make non-local connections (jumps)
-- Low dissonance → strict local attention (sequential reasoning)
-- Waypoints: high-attention tokens selected as anchor points for jumps
+Formal name: Dissonance-Gated Reasoning Skips
+Technical alias: TimeTravel (for API/docs)
+
+- High dissonance → low distance penalty → allow far jumps
+- Low dissonance → high distance penalty → force local attention
+- Waypoints: tokens with high cumulative attention mass serve as anchors
 
 Key insight from Sonar:
 "RTL = natural past/future symmetry. Hebrew readers already
@@ -33,10 +41,16 @@ Implementation:
 1. RTLPositionalEncoding: positions increase right-to-left
 2. BidirectionalAttention: full attention with dissonance-based distance modulation
 3. TemporalSymmetryHead: combines forward + backward
-4. DissonanceGate: modulates attention based on calendar dissonance
-5. WaypointSelector: identifies anchor points for reasoning skips
+4. DissonanceGate: modulates attention via calendar + JSD + entropy
+5. WaypointSelector: identifies anchor points using cumulative mass
 6. Prophecy mode: emphasize left (future)
 7. Retrodiction mode: emphasize right (past)
+
+Metrics (all length-invariant):
+- non_locality_index: mean attention distance / (L-1)
+- skip_ratio: fraction of positions between anchors
+- boundary_violations: fraction of under-attended positions
+- agreement_score: forward/backward correlation
 """
 
 import numpy as np
@@ -55,12 +69,18 @@ class WaypointInfo:
 
 @dataclass
 class SkipMetrics:
-    """Audit metrics for dissonance-gated reasoning skips."""
-    skip_ratio: float  # Fraction of reasoning steps skipped (0.0-1.0)
-    boundary_violations: int  # Number of constraint violations
-    agreement_score: float  # Forward/backward agreement (0.0-1.0)
-    quality_delta: float  # Quality improvement from skips
-    compute_delta: float  # Compute savings from skips
+    """
+    Audit metrics for dissonance-gated reasoning skips.
+
+    NOTE: These are BEHAVIORAL metrics, not compute metrics.
+    We don't claim FLOPs savings - bias changes don't reduce O(L²) complexity.
+    For actual compute savings, implement sparse/waypoint-only attention.
+    """
+    skip_ratio: float  # Fraction of positions between anchors (0.0-1.0)
+    boundary_violations: float  # Fraction of under-attended positions (scaled by length)
+    agreement_score: float  # Forward/backward correlation (0.0-1.0)
+    quality_delta: float  # Dissonance × agreement (justified skip potential)
+    non_locality_index: float  # Mean attention distance / (L-1), 0=local, 1=max nonlocal
 
 
 @dataclass
@@ -184,7 +204,11 @@ class DissonanceGate:
         """
         Compute total dissonance from multiple sources.
 
-        dissonance = calendar_component + kl_component + constraint_component
+        dissonance = w_cal × calendar + w_jsd × JSD_norm + w_h × |ΔH_norm|
+
+        Uses Jensen-Shannon Divergence (JSD) instead of KL because:
+        - JSD is symmetric and bounded ∈ [0, ln(2)]
+        - KL can be unbounded (0..∞)
 
         Args:
             current_date: Date for calendar dissonance (defaults to today)
@@ -197,28 +221,38 @@ class DissonanceGate:
         if current_date is None:
             current_date = date.today()
 
-        # 1. Calendar dissonance (Hebrew↔Gregorian drift)
+        # 1. Calendar dissonance (Hebrew↔Gregorian incommensurability tension)
+        # Computed via CalendarConflict using Metonic cycle, leap months, drift
         calendar = self._get_calendar()
         calendar_dissonance = calendar.compute_dissonance(current_date)
 
-        # 2. KL divergence between forward and backward (if available)
-        kl_component = 0.0
+        # 2. Jensen-Shannon Divergence (bounded, symmetric)
+        # JSD(p,q) = 0.5 * KL(p||m) + 0.5 * KL(q||m), where m = (p+q)/2
+        # JSD ∈ [0, ln(2)] → normalize by ln(2)
+        jsd_component = 0.0
         if forward_probs is not None and backward_probs is not None:
-            # KL(p_fwd || p_bwd) + KL(p_bwd || p_fwd) / 2 (symmetric KL)
             eps = 1e-8
-            kl_fwd = np.sum(forward_probs * np.log((forward_probs + eps) / (backward_probs + eps)))
-            kl_bwd = np.sum(backward_probs * np.log((backward_probs + eps) / (forward_probs + eps)))
-            kl_component = np.clip((kl_fwd + kl_bwd) / 2, 0, 1)
+            m = 0.5 * (forward_probs + backward_probs)
+            kl_pm = np.sum(forward_probs * np.log((forward_probs + eps) / (m + eps)))
+            kl_qm = np.sum(backward_probs * np.log((backward_probs + eps) / (m + eps)))
+            jsd = 0.5 * kl_pm + 0.5 * kl_qm
+            jsd_component = np.clip(jsd / np.log(2), 0, 1)  # Normalize by ln(2)
 
-        # 3. Constraint violations (entropy difference)
-        constraint_component = 0.0
+        # 3. Normalized entropy difference
+        # H_norm(p) = H(p) / ln(|support|) ∈ [0, 1]
+        entropy_component = 0.0
         if forward_probs is not None and backward_probs is not None:
+            seq_len = len(forward_probs)
+            max_entropy = np.log(seq_len + eps)  # ln(|V|), here V = seq_len
             h_fwd = -np.sum(forward_probs * np.log(forward_probs + eps))
             h_bwd = -np.sum(backward_probs * np.log(backward_probs + eps))
-            constraint_component = np.clip(abs(h_fwd - h_bwd), 0, 1)
+            h_fwd_norm = h_fwd / max_entropy
+            h_bwd_norm = h_bwd / max_entropy
+            entropy_component = np.clip(abs(h_fwd_norm - h_bwd_norm), 0, 1)
 
-        # Combined dissonance (weighted average)
-        total = 0.5 * calendar_dissonance + 0.3 * kl_component + 0.2 * constraint_component
+        # Combined dissonance (weighted average, weights sum to 1)
+        w_cal, w_jsd, w_h = 0.5, 0.3, 0.2
+        total = w_cal * calendar_dissonance + w_jsd * jsd_component + w_h * entropy_component
         return np.clip(total, 0.0, 1.0)
 
     def compute_distance_penalty(self, dissonance: float) -> float:
@@ -261,17 +295,22 @@ class DissonanceGate:
     def select_waypoints(
         self,
         attention_weights: np.ndarray,
-        dissonance: float
+        dissonance: float,
+        cumulative_mass_threshold: float = 0.6
     ) -> List[WaypointInfo]:
         """
         Select waypoints (anchor points) for reasoning skips.
 
-        Waypoints are tokens with high attention mass that serve as
-        "landing points" for temporal jumps.
+        Uses CUMULATIVE MASS approach (length-invariant):
+        - Select minimum set S such that Σ_{i∈S} mass[i] ≥ threshold
+        - Mark as anchor if dissonance > 0.5 and mass is in top percentile
+
+        This is more robust than absolute threshold which depends on seq_len.
 
         Args:
             attention_weights: Attention matrix (seq_len, seq_len)
             dissonance: Current dissonance level
+            cumulative_mass_threshold: Min cumulative mass for waypoint set (default 0.6)
 
         Returns:
             List of WaypointInfo for selected anchors
@@ -282,17 +321,26 @@ class DissonanceGate:
         attention_mass = attention_weights.sum(axis=0)
         attention_mass = attention_mass / (attention_mass.sum() + 1e-8)
 
-        # Select waypoints
+        # Sort by mass descending
+        sorted_indices = np.argsort(attention_mass)[::-1]
+
+        # Select waypoints using cumulative mass threshold (length-invariant)
         waypoints = []
-        for idx in np.argsort(attention_mass)[::-1]:
+        cumulative_mass = 0.0
+        anchor_threshold_percentile = np.percentile(attention_mass, 80)  # Top 20%
+
+        for idx in sorted_indices:
+            if cumulative_mass >= cumulative_mass_threshold:
+                break
             if len(waypoints) >= self.max_waypoints:
                 break
 
             mass = attention_mass[idx]
-            if mass >= self.waypoint_threshold:
-                # Is anchor if dissonance is high enough
-                is_anchor = dissonance > 0.5 and mass > 0.2
-                waypoints.append(WaypointInfo(
+            cumulative_mass += mass
+
+            # Is anchor if dissonance high AND mass in top percentile
+            is_anchor = dissonance > 0.5 and mass >= anchor_threshold_percentile
+            waypoints.append(WaypointInfo(
                     index=int(idx),
                     attention_mass=float(mass),
                     is_anchor=is_anchor
@@ -311,12 +359,12 @@ class DissonanceGate:
         """
         Compute audit metrics for reasoning skips.
 
-        Metrics:
-        1. skip_ratio: Fraction of intermediate steps skipped
-        2. boundary_violations: Number of constraint violations
-        3. agreement_score: Forward/backward agreement
-        4. quality_delta: Quality improvement from skips
-        5. compute_delta: Compute savings from skips
+        Metrics (all length-invariant):
+        1. skip_ratio: Fraction of positions between anchors
+        2. boundary_violations: FRACTION (not count) of under-attended positions
+        3. agreement_score: Forward/backward correlation (1 - normalized JSD)
+        4. quality_delta: Dissonance × agreement (justified skip potential)
+        5. non_locality_index: Mean attention distance / (L-1)
         """
         seq_len = attention_weights.shape[0]
 
@@ -324,7 +372,6 @@ class DissonanceGate:
         if waypoints:
             anchor_indices = [w.index for w in waypoints if w.is_anchor]
             if len(anchor_indices) >= 2:
-                # Compute "skipped" positions between anchors
                 sorted_anchors = sorted(anchor_indices)
                 total_skipped = 0
                 for i in range(len(sorted_anchors) - 1):
@@ -336,26 +383,40 @@ class DissonanceGate:
         else:
             skip_ratio = 0.0
 
-        # 2. Boundary violations: positions with very low attention
-        min_attention_per_pos = attention_weights.sum(axis=0) / seq_len
-        violations = int(np.sum(min_attention_per_pos < 0.01))
+        # 2. Boundary violations: FRACTION of under-attended positions (length-invariant)
+        # Threshold scales with length: c/L instead of fixed 0.01
+        attention_per_pos = attention_weights.sum(axis=0) / seq_len
+        threshold = 1.0 / (seq_len * 2)  # Adaptive threshold: half of uniform
+        violations_count = np.sum(attention_per_pos < threshold)
+        boundary_violations = violations_count / seq_len  # Return as fraction
 
         # 3. Agreement score: correlation between forward and backward
+        # Also compute JSD for more robust comparison
         agreement = np.corrcoef(forward_weights.flatten(), backward_weights.flatten())[0, 1]
-        agreement_score = np.clip((agreement + 1) / 2, 0, 1)  # Map -1..1 to 0..1
+        if np.isnan(agreement):
+            agreement = 0.0
+        agreement_score = np.clip((agreement + 1) / 2, 0, 1)
 
-        # 4. Quality delta: higher dissonance with good agreement = quality
+        # 4. Quality delta: justified skip potential
         quality_delta = dissonance * agreement_score
 
-        # 5. Compute delta: skip ratio directly correlates to compute savings
-        compute_delta = skip_ratio * 0.5  # Assume 50% max savings
+        # 5. Non-locality index: E[|i-j|] / (L-1)
+        # 0 = purely local (diagonal), 1 = maximum non-local
+        # attention_weights is (L, L) where each row sums to 1, so total mass = L
+        # We compute average distance per row, then average across rows
+        positions = np.arange(seq_len)
+        distance_matrix = np.abs(positions[:, None] - positions[None, :])
+        total_weighted_distance = np.sum(attention_weights * distance_matrix)
+        mean_distance_per_row = total_weighted_distance / seq_len  # Average per row
+        max_possible_distance = seq_len - 1 if seq_len > 1 else 1
+        non_locality_index = np.clip(mean_distance_per_row / max_possible_distance, 0, 1)
 
         return SkipMetrics(
             skip_ratio=skip_ratio,
-            boundary_violations=violations,
+            boundary_violations=float(boundary_violations),
             agreement_score=float(agreement_score),
             quality_delta=quality_delta,
-            compute_delta=compute_delta
+            non_locality_index=float(non_locality_index)
         )
 
 
@@ -601,7 +662,7 @@ class TemporalSymmetryHead:
             asymmetry = 0.0
             combined_weights = np.zeros((x.shape[0], x.shape[0]))
             waypoints = []
-            skip_metrics = SkipMetrics(0.0, 0, 0.0, 0.0, 0.0)
+            skip_metrics = SkipMetrics(0.0, 0.0, 0.0, 0.0, 0.0)
 
         return RTLOutput(
             attended=attended,
@@ -881,8 +942,8 @@ if __name__ == "__main__":
                 print(f"    - idx={wp.index}, mass={wp.attention_mass:.3f}, anchor={wp.is_anchor}")
         if output.skip_metrics:
             print(f"  Skip ratio: {output.skip_metrics.skip_ratio:.3f}")
+            print(f"  Non-locality index: {output.skip_metrics.non_locality_index:.3f}")
             print(f"  Agreement score: {output.skip_metrics.agreement_score:.3f}")
-            print(f"  Quality delta: {output.skip_metrics.quality_delta:.3f}")
         print()
 
     # Test TimeTravel alias
