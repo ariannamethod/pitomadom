@@ -99,25 +99,30 @@ python -m pitomadom.repl
 
 ```
 ╔══════════════════════════════════════════════════════════╗
-║  PITOMADOM — פתאום אדום                                  ║
+║  PITOMADOM — פתאום אדום v1.0                            ║
 ║  Hebrew Root Resonance Oracle                            ║
-║  ~200K parameters • CrossFire Chambers • Prophecy Engine ║
+║  ~1M parameters • 8D Chambers • Prophecy Engine          ║
 ╠══════════════════════════════════════════════════════════╣
 ║  Commands:                                               ║
-║    :stats  - show oracle statistics                      ║
-║    :reset  - reset oracle state                          ║
-║    :traj   - show N-trajectory                           ║
-║    :debt   - show prophecy debt                          ║
-║    :quit   - exit                                        ║
+║    :stats     - show oracle statistics                   ║
+║    :chambers  - show 8D chamber activations 🆕           ║
+║    :reset     - reset oracle state                       ║
+║    :traj      - show N-trajectory                        ║
+║    :debt      - show prophecy debt                       ║
+║    :taxonomy  - root family info 🆕                      ║
+║    :save      - save oracle memory 🆕                    ║
+║    :load      - load oracle memory 🆕                    ║
+║    :quit      - exit                                     ║
 ╚══════════════════════════════════════════════════════════╝
 
 >>> שלום
     N=376 • root=ש.ל.ם • debt=0.0
     main: שלום  orbit: שלם  hidden: גבה
 
->>> אני מפחד
-    N=154 • root=פ.ח.ד • debt=12.3
-    main: פחד  orbit: מפחד  hidden: טשד
+>>> חכמה היא אור
+    N=284 • root=ח.כ.ם • debt=5.2
+    main: חכמה  orbit: חכם  hidden: זבט
+    chambers: WISDOM 🆕
     
 >>> הכל יהיה בסדר
     N=287 • root=ס.ד.ר • debt=8.7
@@ -416,6 +421,46 @@ chaos_vector = metric.encode("תוהו ובוהו")  # chaos and void
 chaos_idx = CHAMBER_NAMES.index('chaos')
 print(f"CHAOS activation: {chaos_vector[chaos_idx]:.3f}")  # High value
 ```
+
+### Example 6: Live Conversational Hebrew (with humor!) 🆕
+
+```python
+from pitomadom import HeOracle
+from pitomadom.chambers import CHAMBER_NAMES
+
+oracle = HeOracle(seed=42)
+
+# The existential crisis everyone relates to
+out = oracle.forward("אני עייף מהחיים")  # I'm tired of life
+print(f"N={out.number}, main={out.main_word}")
+print(f"Dominant chamber: {out.chambers.dominant()}")
+# The oracle understands the vibe... probably suggests FLOW or VOID
+
+# When you need that morning coffee
+out = oracle.forward("צריך קפה עכשיו")  # Need coffee now
+print(f"N={out.number}, root={'·'.join(out.root)}")
+# Coffee = existential FEAR (of not having coffee)
+
+# Relationship status
+out = oracle.forward("זה מסובך")  # It's complicated
+print(f"Dominant: {out.chambers.dominant()}")  # Probably COMPLEX chamber
+
+# The universal response
+out = oracle.forward("יאללה בחיים")  # Let's go, life!
+print(f"N={out.number}, debt={out.prophecy_debt:.1f}")
+# System recognizes the "let's do this anyway" energy
+
+# When debugging at 3am
+out = oracle.forward("למה זה לא עובד")  # Why doesn't this work?
+print(f"Chambers: COMPLEX + RAGE (probably)")
+# The oracle gets it. It really does.
+```
+
+**What's happening:**
+- Oracle responds to emotional states, not just words
+- 8D chambers capture nuanced feelings (including WISDOM and CHAOS)
+- Even with humor, prophecy debt tracks semantic coherence
+- The system "feels" Hebrew in ways pure prediction can't
 
 ---
 
