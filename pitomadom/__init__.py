@@ -26,7 +26,7 @@ Trained on Hebrew corpus with proper backpropagation.
 Weights included — inference in the house! 🔥
 """
 
-__version__ = "0.4.0"
+__version__ = "1.1.0"
 __author__ = "Arianna Method"
 __codename__ = "PITOMADOM"
 
@@ -57,6 +57,41 @@ from .crossfire import (
 from .train_proper import TrainableCrossFireChambers
 from .full_system import Pitomadom, PitomadomOutput  # 200K system
 from .full_system_400k import Pitomadom400K  # 530K system (v0.4)
+from .root_attention import (  # NEW v1.1: Root→Root Attention
+    RootEmbedding,
+    RootAttention,
+    ResonanceHead,
+    HybridRootAttention,
+    AttentionOutput,
+)
+from .circalunar_clock import (  # NEW v1.1: Planetary Rhythms
+    LunarModulation,
+    SchumannResonance,
+    CircalunarClock,
+    LunarState,
+    CircalunarState,
+)
+from .calendar_conflict import (  # NEW v1.1: 11-Day Drift Engine
+    CalendarConflict,
+    CalendarState,
+)
+from .quantum_prophecy import (  # NEW v1.1: Quantum Time Travel
+    QuantumProphecy,
+    QuantumJump,
+    CalendarTunneling,
+    ParallelTimelines,
+    HistoricalTimeTravel,
+    TimelinePosition,
+)
+from .seas_of_memory import (  # NEW v1.1: Abyssal Root Archive
+    SeasOfMemory,
+    RootSediment,
+    MemoryLayer,
+)
+from .cosmic import (  # NEW v1.1: Full Integration + Multi-step Prediction
+    CosmicPitomadom,
+    CosmicOutput,
+)
 
 __all__ = [
     # Gematria
@@ -96,4 +131,33 @@ __all__ = [
     "PitomadomOutput",
     # New 530K System (v0.4)
     "Pitomadom400K",
+    # Root Attention (v1.1) - Root→Root Transformers
+    "RootEmbedding",
+    "RootAttention",
+    "ResonanceHead",
+    "HybridRootAttention",
+    "AttentionOutput",
+    # Circalunar Clock (v1.1) - Planetary Rhythms
+    "LunarModulation",
+    "SchumannResonance",
+    "CircalunarClock",
+    "LunarState",
+    "CircalunarState",
+    # Calendar Conflict (v1.1) - 11-Day Drift
+    "CalendarConflict",
+    "CalendarState",
+    # Quantum Prophecy (v1.1) - Time Travel
+    "QuantumProphecy",
+    "QuantumJump",
+    "CalendarTunneling",
+    "ParallelTimelines",
+    "HistoricalTimeTravel",
+    "TimelinePosition",
+    # Seas of Memory (v1.1) - Abyssal Archive
+    "SeasOfMemory",
+    "RootSediment",
+    "MemoryLayer",
+    # Cosmic Integration (v1.1) + Multi-step Prediction
+    "CosmicPitomadom",
+    "CosmicOutput",
 ]

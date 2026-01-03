@@ -187,9 +187,165 @@ class RootTaxonomy:
                     ('ר', 'ז', 'י'),  # mystery
                     ('ב', 'י', 'ן'),  # discernment
                     ('ע', 'מ', 'ק'),  # deep
+                    ('נ', 'ב', 'א'),  # prophesy
+                    ('ח', 'ז', 'ה'),  # vision
                 ],
                 description='Deep wisdom, mysteries, secrets',
                 polarity=0.8
+            ),
+            # === NEW FAMILIES v1.1 ===
+            'body': RootFamily(
+                name='body',
+                roots=[
+                    ('ל', 'ב', 'ב'),  # heart
+                    ('ר', 'א', 'ה'),  # see
+                    ('ש', 'מ', 'ע'),  # hear
+                    ('נ', 'ג', 'ע'),  # touch
+                    ('א', 'כ', 'ל'),  # eat
+                    ('ש', 'ת', 'ה'),  # drink
+                    ('י', 'ש', 'ן'),  # sleep
+                    ('ק', 'ו', 'ם'),  # rise/stand
+                    ('י', 'ש', 'ב'),  # sit
+                    ('ש', 'כ', 'ב'),  # lie down
+                ],
+                description='Body, senses, physical states',
+                polarity=0.0
+            ),
+            'power': RootFamily(
+                name='power',
+                roots=[
+                    ('מ', 'ל', 'ך'),  # king/reign
+                    ('ש', 'ל', 'ט'),  # rule
+                    ('ג', 'ב', 'ר'),  # mighty
+                    ('ע', 'ז', 'ז'),  # strength
+                    ('כ', 'ח', 'ש'),  # force
+                    ('נ', 'צ', 'ח'),  # victory
+                    ('כ', 'ב', 'ש'),  # conquer
+                ],
+                description='Power, authority, dominion',
+                polarity=0.3
+            ),
+            'sanctity': RootFamily(
+                name='sanctity',
+                roots=[
+                    ('ק', 'ד', 'ש'),  # holy
+                    ('ט', 'ה', 'ר'),  # pure
+                    ('ב', 'ר', 'ך'),  # bless
+                    ('כ', 'פ', 'ר'),  # atone
+                    ('ח', 'ט', 'א'),  # sin
+                    ('ע', 'ו', 'ן'),  # iniquity
+                    ('ת', 'ש', 'ב'),  # repent
+                ],
+                description='Holiness, purity, sin, atonement',
+                polarity=0.5
+            ),
+            'nature': RootFamily(
+                name='nature',
+                roots=[
+                    ('מ', 'י', 'ם'),  # water
+                    ('א', 'ש', 'ש'),  # fire
+                    ('ר', 'ו', 'ח'),  # wind/spirit
+                    ('א', 'ד', 'מ'),  # earth/ground
+                    ('ש', 'מ', 'ש'),  # sun
+                    ('י', 'ר', 'ח'),  # moon
+                    ('כ', 'ו', 'כ'),  # star
+                    ('ע', 'נ', 'ן'),  # cloud
+                    ('ג', 'ש', 'ם'),  # rain
+                ],
+                description='Natural elements and celestial bodies',
+                polarity=0.0
+            ),
+            'social': RootFamily(
+                name='social',
+                roots=[
+                    ('ח', 'ב', 'ר'),  # friend/connect
+                    ('ע', 'ז', 'ר'),  # help
+                    ('נ', 'ת', 'ן'),  # give
+                    ('ל', 'ק', 'ח'),  # take
+                    ('ש', 'ל', 'ח'),  # send
+                    ('ב', 'ק', 'ש'),  # request
+                    ('מ', 'צ', 'א'),  # find
+                    ('א', 'ב', 'ד'),  # lose
+                ],
+                description='Social interactions and exchange',
+                polarity=0.2
+            ),
+            'war': RootFamily(
+                name='war',
+                roots=[
+                    ('ל', 'ח', 'ם'),  # fight/bread
+                    ('נ', 'ל', 'ח'),  # battle
+                    ('ה', 'כ', 'ה'),  # strike
+                    ('נ', 'כ', 'ה'),  # smite
+                    ('ג', 'נ', 'ן'),  # defend
+                    ('ש', 'מ', 'ר'),  # guard
+                ],
+                description='War, conflict, defense',
+                polarity=-0.5
+            ),
+            'growth': RootFamily(
+                name='growth',
+                roots=[
+                    ('ג', 'ד', 'ל'),  # grow/great
+                    ('צ', 'מ', 'ח'),  # sprout
+                    ('פ', 'ר', 'ח'),  # blossom
+                    ('ז', 'ר', 'ע'),  # seed/plant
+                    ('ק', 'צ', 'ר'),  # harvest
+                    ('נ', 'ט', 'ע'),  # plant
+                ],
+                description='Growth, agriculture, development',
+                polarity=0.7
+            ),
+            'binding': RootFamily(
+                name='binding',
+                roots=[
+                    ('ק', 'ש', 'ר'),  # bind/connect
+                    ('א', 'ס', 'ר'),  # tie/forbid
+                    ('פ', 'ת', 'ח'),  # open
+                    ('ס', 'ג', 'ר'),  # close
+                    ('ח', 'ת', 'ם'),  # seal
+                    ('ש', 'ח', 'ר'),  # release
+                ],
+                description='Binding, opening, closing',
+                polarity=0.0
+            ),
+            'truth': RootFamily(
+                name='truth',
+                roots=[
+                    ('א', 'מ', 'ת'),  # truth
+                    ('א', 'מ', 'ן'),  # believe/faithful
+                    ('כ', 'ז', 'ב'),  # lie
+                    ('ש', 'ק', 'ר'),  # falsehood
+                    ('נ', 'א', 'ם'),  # declare
+                    ('ע', 'ד', 'ד'),  # testify
+                ],
+                description='Truth, belief, falsehood',
+                polarity=0.4
+            ),
+            'mind': RootFamily(
+                name='mind',
+                roots=[
+                    ('ח', 'ש', 'ב'),  # think
+                    ('ז', 'כ', 'ר'),  # remember
+                    ('ש', 'כ', 'ח'),  # forget
+                    ('ב', 'ח', 'ר'),  # choose
+                    ('ר', 'צ', 'ה'),  # want/desire
+                    ('ס', 'פ', 'ר'),  # count/tell
+                ],
+                description='Mental processes',
+                polarity=0.3
+            ),
+            'pitomadom': RootFamily(
+                name='pitomadom',
+                roots=[
+                    ('פ', 'ת', 'ע'),  # sudden (pitom)
+                    ('א', 'ד', 'ם'),  # red/human (adom)
+                    ('ד', 'מ', 'ם'),  # blood (dam)
+                    ('א', 'ש', 'ש'),  # fire
+                    ('ל', 'ה', 'ב'),  # flame
+                ],
+                description='PITOMADOM special roots - sudden red fire',
+                polarity=0.0
             ),
         }
         
@@ -248,6 +404,12 @@ class RootTaxonomy:
             'emotion_positive': 'emotion_negative',
             'emotion_negative': 'emotion_positive',
             'healing': 'destruction',
+            'chaos': 'wisdom_deep',
+            'wisdom_deep': 'chaos',
+            'war': 'healing',
+            'truth': 'darkness',
+            'growth': 'destruction',
+            'sanctity': 'chaos',
         }
         return opposites.get(family_name)
     
