@@ -769,8 +769,8 @@ class Test8DChambers(unittest.TestCase):
         
         # Should have 8 activations
         self.assertEqual(len(activations), 8)
-        self.assertIn('WISDOM', activations)
-        self.assertIn('CHAOS', activations)
+        self.assertIn('wisdom', activations)
+        self.assertIn('chaos', activations)
 
 
 if __name__ == '__main__':
