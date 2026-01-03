@@ -247,11 +247,18 @@ class CosmicPitomadomV2(Pitomadom):
             dominant_family = self.taxonomy.get_family(base_output.root) or ""
             family_resonance = {}
 
-        # 7. Quantum prophecy attempt
+        # 7. Temporal prophecy attempt
         if use_quantum and len(self._n_trajectory) >= 2:
+            # Compute attractor strength from semantic field, NOT numerology
+            # Strength based on: frequency in session + family resonance
+            root_frequency = self.session_roots.count(base_output.root) / len(self.session_roots)
+            family_strength = family_resonance.get(dominant_family, 0.5) if family_resonance else 0.5
+            attractor_strength = 0.5 * root_frequency + 0.5 * family_strength
+            attractor_strength = min(1.0, attractor_strength + 0.3)  # Base boost
+
             quantum_result = self.quantum.prophesy_multi_step(
                 current_N=base_output.number,
-                root_gematria=root_gem,
+                root_attractor_strength=attractor_strength,
                 trajectory=self._n_trajectory,
                 steps_ahead=1,
                 current_date=current_date
@@ -296,8 +303,14 @@ class CosmicPitomadomV2(Pitomadom):
         )
         self.temporal_state.prophecy_debt = modulated_debt
 
-        # 11. Drift resonance
-        drift_resonance = self.calendar.compute_root_drift_resonance(root_gem, current_date)
+        # 11. Calendar resonance (uses attractor strength, NOT gematria % N)
+        # Recompute attractor strength if not done in quantum section
+        if not (use_quantum and len(self._n_trajectory) >= 2):
+            root_frequency = self.session_roots.count(base_output.root) / max(len(self.session_roots), 1)
+            family_strength = family_resonance.get(dominant_family, 0.5) if family_resonance else 0.5
+            attractor_strength = min(1.0, 0.5 * root_frequency + 0.5 * family_strength + 0.3)
+
+        drift_resonance = self.calendar.compute_calendar_resonance(attractor_strength, current_date)
 
         # Create output
         output = CosmicOutputV2(

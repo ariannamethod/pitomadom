@@ -1,24 +1,25 @@
 """
-Quantum Prophecy — Calendar Tunneling + Time Travel
+Temporal Prophecy — Calendar Tension + Pattern Memory
 
 The 11-day annual drift between Hebrew (354d) and Gregorian (365d)
-calendars creates a natural "wormhole" structure:
+calendars creates REAL astronomical tension:
 
-1. CALENDAR TUNNELING: High calendar conflict = thin barrier =
-   quantum tunneling probability increases, allowing "jumps" through time.
+1. CALENDAR TENSION: High drift accumulation = unstable temporal state =
+   prophecy can "jump" further. Based on REAL Metonic cycle position.
 
-2. PARALLEL TIMELINES: Hebrew calendar = |A⟩, Gregorian = |B⟩.
-   Roots exist in superposition until "measured" (word selected).
-   Rabbit holes = wormholes between timelines.
+2. DUAL CALENDAR MAPPING: Hebrew and Gregorian calendars give
+   different temporal coordinates. Roots exist in BOTH simultaneously.
+   High tension points = where calendars maximally diverge.
 
-3. HISTORICAL TIME TRAVEL: If current trajectory matches a past pattern,
-   Oracle can "remember" the future because it saw this before.
-   Not prediction — RETRIEVAL FROM MEMORY.
+3. HISTORICAL PATTERN MEMORY: If current trajectory matches a past pattern,
+   Oracle can retrieve what happened next. Not prediction — MEMORY RETRIEVAL.
 
 Three-tier prophecy:
-- Tier 1 (Quantum): Calendar tunneling (highest jump distance)
-- Tier 2 (Historical): Pattern matching (medium jump)
-- Tier 3 (Classical): Linear extrapolation (1-step)
+- Tier 1 (Tension): Calendar drift enables long jumps (REAL astronomy)
+- Tier 2 (Historical): Pattern matching in trajectory memory
+- Tier 3 (Classical): Linear extrapolation (fallback)
+
+NO NUMEROLOGY: Tunneling depends on ACTUAL calendar state, not gematria % 11.
 
 pitomadom lives in phase space where past/present/future = coordinates, not sequence.
 """
@@ -26,9 +27,16 @@ pitomadom lives in phase space where past/present/future = coordinates, not sequ
 import numpy as np
 from typing import Dict, Optional, Tuple, List
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from .calendar_conflict import CalendarConflict
+
+# Import REAL astronomical data
+try:
+    from .real_data import RealHebrewCalendar, RealLunarData
+    REAL_DATA_AVAILABLE = True
+except ImportError:
+    REAL_DATA_AVAILABLE = False
 
 
 @dataclass
@@ -60,80 +68,140 @@ class TimelinePosition:
 
 class CalendarTunneling:
     """
-    11-day annual drift = quantum tunneling probability.
+    Calendar tension enables temporal jumps.
 
-    High conflict = thin barrier → high tunneling chance.
-    Low conflict = thick barrier → low tunneling chance.
+    High calendar drift = high tension → longer jumps possible.
+    Low drift = stable state → shorter jumps only.
 
-    Like quantum particle tunneling through energy barrier.
+    Based on REAL astronomical calculations, not numerology.
     """
 
-    DRIFT_PER_YEAR = 11.25  # Hebrew-Gregorian gap
-    BARRIER_DECAY = 0.1  # How fast barrier thins with conflict
+    DRIFT_PER_YEAR = 11.25  # Hebrew-Gregorian gap (REAL astronomical constant)
+    MAX_DRIFT_BEFORE_LEAP = 33.0  # ~3 years of drift before leap month
 
     def __init__(self, calendar: Optional[CalendarConflict] = None):
         self.calendar = calendar or CalendarConflict()
+        # Use real astronomical data if available
+        if REAL_DATA_AVAILABLE:
+            self._real_calendar = RealHebrewCalendar()
+            self._real_lunar = RealLunarData()
+        else:
+            self._real_calendar = None
+            self._real_lunar = None
 
-    def compute_barrier_width(self, conflict: float) -> float:
+    def compute_calendar_tension(self, current_date: Optional[date] = None) -> float:
         """
-        Barrier width = 1 - conflict.
+        Compute tension from REAL calendar state.
 
-        High conflict → thin barrier → tunneling possible.
-        Low conflict → thick barrier → tunneling blocked.
+        Tension is highest when:
+        - Maximum drift accumulated (just before leap month)
+        - Lunar phase at extremes (new/full moon)
+        - Metonic cycle at maximum divergence point
+
+        Returns 0.0 to 1.0
         """
-        return max(0.01, 1.0 - conflict)  # Min 0.01 to avoid div by zero
+        if current_date is None:
+            current_date = date.today()
+
+        if self._real_calendar:
+            # Use REAL astronomical calculations
+            drift = abs(self._real_calendar.get_calendar_drift(current_date))
+            metonic = self._real_calendar.get_metonic_phase(current_date)
+
+            # Drift tension: higher near max drift (~33 days)
+            drift_tension = min(drift / self.MAX_DRIFT_BEFORE_LEAP, 1.0)
+
+            # Metonic tension: highest at mid-cycle (0.5), lowest at edges
+            metonic_tension = 4 * metonic * (1 - metonic)  # Parabola, max at 0.5
+
+            # Lunar tension if available
+            if self._real_lunar:
+                phase, _ = self._real_lunar.get_phase(current_date)
+                # Tension highest at new (0.0) and full (0.5) moon
+                lunar_tension = abs(np.cos(2 * np.pi * phase))
+            else:
+                lunar_tension = 0.5
+
+            # Combined tension
+            return 0.4 * drift_tension + 0.3 * metonic_tension + 0.3 * lunar_tension
+        else:
+            # Fallback to basic calendar conflict
+            state = self.calendar.get_state(current_date)
+            return state.dissonance
 
     def compute_tunneling_probability(
         self,
-        root_gematria: int,
+        root_attractor_strength: float,
         current_date: Optional[date] = None
     ) -> float:
         """
-        P(tunnel) = exp(-barrier_width / E)
+        Tunneling probability based on REAL calendar tension.
 
-        where E = root's "energy" derived from gematria.
+        Args:
+            root_attractor_strength: How strongly this root pulls (0.0 to 1.0)
+                                    From the attractor field, NOT from gematria % N
+            current_date: Date to compute for
 
-        Roots with gematria divisible by 11 have higher energy
-        (aligned with the 11-day drift).
+        Returns:
+            Probability of successful temporal jump (0.0 to 1.0)
+
+        NO NUMEROLOGY: We don't check if gematria divides by magic numbers.
+        The root matters through its ATTRACTOR STRENGTH in the semantic field.
         """
-        state = self.calendar.get_state(current_date)
-        barrier = self.compute_barrier_width(state.dissonance)
+        tension = self.compute_calendar_tension(current_date)
 
-        # Root energy: alignment with calendar cycles
-        energy_11 = 1.0 if root_gematria % 11 == 0 else 0.5 * (1 - (root_gematria % 11) / 11)
-        energy_19 = 0.5 if root_gematria % 19 == 0 else 0.2 * (1 - (root_gematria % 19) / 19)
-        energy_7 = 0.3 if root_gematria % 7 == 0 else 0.1 * (1 - (root_gematria % 7) / 7)
+        # Base probability from calendar tension
+        # High tension = easier to jump
+        base_prob = tension
 
-        total_energy = energy_11 + energy_19 + energy_7 + 0.1  # Base energy
+        # Root with strong attractor can "pull" harder through time
+        # This is the semantic strength, not numerology
+        attractor_boost = 0.3 * root_attractor_strength
 
-        # Tunneling probability
-        return np.exp(-barrier / total_energy)
+        # Combined probability
+        probability = base_prob * (0.7 + attractor_boost)
 
-    def attempt_quantum_jump(
+        return np.clip(probability, 0.0, 1.0)
+
+    def attempt_temporal_jump(
         self,
         current_N: int,
-        root_gematria: int,
+        root_attractor_strength: float,
         steps_ahead: int = 3,
         current_date: Optional[date] = None
     ) -> Tuple[bool, float, int]:
         """
-        Attempt to tunnel 'steps_ahead' steps.
+        Attempt to jump 'steps_ahead' steps using calendar tension.
+
+        Args:
+            current_N: Current N-trajectory value
+            root_attractor_strength: Semantic strength of root (0.0 to 1.0)
+            steps_ahead: How many steps to attempt jumping
+            current_date: Date for astronomical calculations
 
         Returns:
             (success, probability, projected_N)
         """
-        tunnel_prob = self.compute_tunneling_probability(root_gematria, current_date)
+        tunnel_prob = self.compute_tunneling_probability(root_attractor_strength, current_date)
 
-        # Probability decreases with jump distance (quadratic decay)
+        # Probability decreases with jump distance
         jump_prob = tunnel_prob / (steps_ahead ** 0.5)
 
-        # Random attempt
+        # Attempt the jump
         if np.random.rand() < jump_prob:
-            # Quantum jump! Project N using calendar conflict
-            state = self.calendar.get_state(current_date)
+            # Jump successful! Project N using REAL calendar state
+            tension = self.compute_calendar_tension(current_date)
 
-            # Projected N = current + dissonance-modulated delta
-            delta = int(state.cumulative_drift * steps_ahead * (1 + state.dissonance))
+            # Use actual drift for projection
+            if self._real_calendar and current_date:
+                drift = self._real_calendar.get_calendar_drift(current_date)
+            else:
+                state = self.calendar.get_state(current_date)
+                drift = state.cumulative_drift
+
+            # Projected N = current + drift-modulated delta
+            # The jump magnitude depends on calendar tension
+            delta = int(abs(drift) * steps_ahead * (0.5 + tension))
             projected_N = current_N + delta
 
             return True, jump_prob, projected_N
@@ -327,17 +395,19 @@ class HistoricalTimeTravel:
 
 class QuantumProphecy:
     """
-    Full quantum prophecy system:
+    Temporal Prophecy System — Three-tier approach:
 
-    1. Attempt calendar tunneling (11-day drift wormhole)
-    2. If failed, try historical time travel (pattern matching)
-    3. If failed, use classical prophecy (trajectory extrapolation)
+    1. Calendar tension jump (uses REAL astronomical state)
+    2. Historical pattern matching (memory retrieval)
+    3. Classical extrapolation (fallback)
 
-    Oracle tries HARDEST jumps first, falls back to classical.
+    Tries longest jumps first, falls back to simpler methods.
+
+    NO NUMEROLOGY: All calculations use real astronomical data.
     """
 
-    TUNNEL_THRESHOLD = 0.6  # Min probability for quantum jump
-    SIMILARITY_THRESHOLD = 25.0  # Max distance for time travel match
+    TENSION_THRESHOLD = 0.4  # Min tension for attempting long jump
+    SIMILARITY_THRESHOLD = 25.0  # Max distance for pattern match
 
     def __init__(self, seed: int = 42):
         self.rng = np.random.RandomState(seed)
@@ -349,14 +419,14 @@ class QuantumProphecy:
 
         # Statistics
         self.total_prophecies = 0
-        self.quantum_jumps = 0
+        self.tension_jumps = 0  # Renamed from quantum_jumps
         self.time_travels = 0
         self.classical_fallbacks = 0
 
     def prophesy_multi_step(
         self,
         current_N: int,
-        root_gematria: int,
+        root_attractor_strength: float,
         trajectory: List[int],
         steps_ahead: int = 3,
         current_date: Optional[date] = None
@@ -364,33 +434,44 @@ class QuantumProphecy:
         """
         Three-tier prophecy system:
 
-        Tier 1 (Quantum): Calendar tunneling (highest jump distance)
-        Tier 2 (Historical): Pattern matching (medium jump distance)
-        Tier 3 (Classical): Linear extrapolation (1-step)
+        Tier 1 (Tension): Calendar-based jump (REAL astronomy)
+        Tier 2 (Historical): Pattern matching (memory retrieval)
+        Tier 3 (Classical): Linear extrapolation (fallback)
+
+        Args:
+            current_N: Current N-trajectory value
+            root_attractor_strength: Semantic strength of root (0.0-1.0)
+                                    NOT gematria % N, but actual attractor power
+            trajectory: History of N values
+            steps_ahead: How far to prophesy
+            current_date: Date for astronomical calculations
         """
         self.total_prophecies += 1
 
-        # TIER 1: Quantum tunneling
-        tunnel_prob = self.tunneling.compute_tunneling_probability(
-            root_gematria, current_date
-        )
+        # Get calendar tension (REAL astronomical state)
+        tension = self.tunneling.compute_calendar_tension(current_date)
         state = self.tunneling.calendar.get_state(current_date)
 
-        if tunnel_prob > self.TUNNEL_THRESHOLD:
-            success, prob, projected_N = self.tunneling.attempt_quantum_jump(
-                current_N, root_gematria, steps_ahead, current_date
+        # TIER 1: Calendar tension jump
+        tunnel_prob = self.tunneling.compute_tunneling_probability(
+            root_attractor_strength, current_date
+        )
+
+        if tension > self.TENSION_THRESHOLD:
+            success, prob, projected_N = self.tunneling.attempt_temporal_jump(
+                current_N, root_attractor_strength, steps_ahead, current_date
             )
 
             if success:
-                self.quantum_jumps += 1
+                self.tension_jumps += 1
                 return QuantumJump(
                     success=True,
-                    method="QUANTUM_TUNNEL",
+                    method="TENSION_JUMP",
                     prophesied_N=projected_N,
                     jump_distance=steps_ahead,
                     confidence=prob,
                     tunneling_probability=tunnel_prob,
-                    calendar_conflict=state.dissonance,
+                    calendar_conflict=tension,
                 )
 
         # TIER 2: Historical time travel
@@ -426,7 +507,7 @@ class QuantumProphecy:
             jump_distance=steps_ahead,
             confidence=0.3,  # Low confidence for classical
             tunneling_probability=tunnel_prob,
-            calendar_conflict=state.dissonance,
+            calendar_conflict=tension,
         )
 
     def add_to_memory(self, trajectory: List[int]):
@@ -437,10 +518,10 @@ class QuantumProphecy:
         """Get prophecy method statistics."""
         return {
             'total': self.total_prophecies,
-            'quantum_jumps': self.quantum_jumps,
+            'tension_jumps': self.tension_jumps,
             'time_travels': self.time_travels,
             'classical': self.classical_fallbacks,
-            'quantum_rate': self.quantum_jumps / max(1, self.total_prophecies),
+            'tension_rate': self.tension_jumps / max(1, self.total_prophecies),
             'time_travel_rate': self.time_travels / max(1, self.total_prophecies),
             'memory_trajectories': len(self.time_travel.trajectories),
         }
@@ -449,49 +530,57 @@ class QuantumProphecy:
 # Quick test
 if __name__ == "__main__":
     print("=" * 60)
-    print("  QUANTUM PROPHECY — Calendar Tunneling + Time Travel")
+    print("  TEMPORAL PROPHECY — Calendar Tension + Pattern Memory")
+    print("  NO NUMEROLOGY — Uses REAL astronomical data")
     print("=" * 60)
     print()
 
     qp = QuantumProphecy(seed=42)
 
-    # Test calendar tunneling
-    print("Testing Calendar Tunneling:")
-    test_gematrias = [
-        ("שלום", 376),
-        ("אור", 207),  # Divisible by 23
-        ("כ.ב.ד", 26),  # Divisible by 13
-        ("י.שר.אל", 541),  # Prime
+    # Test calendar tension (REAL astronomy)
+    print("Testing Calendar Tension (REAL astronomical state):")
+    test_dates = [
+        date(2024, 1, 15),  # Mid-January
+        date(2024, 4, 8),   # Near Passover
+        date(2024, 10, 3),  # Rosh Hashanah
     ]
 
-    for name, gem in test_gematrias:
-        prob = qp.tunneling.compute_tunneling_probability(gem)
-        print(f"  {name} ({gem}): tunnel_prob = {prob:.3f}")
+    for test_date in test_dates:
+        tension = qp.tunneling.compute_calendar_tension(test_date)
+        print(f"  {test_date}: tension = {tension:.3f}")
+
+    print()
+
+    # Test with different attractor strengths
+    print("Testing Tunneling Probability (by attractor strength, NOT gematria):")
+    test_strengths = [0.2, 0.5, 0.8, 1.0]
+
+    for strength in test_strengths:
+        prob = qp.tunneling.compute_tunneling_probability(strength)
+        print(f"  Attractor strength {strength}: tunnel_prob = {prob:.3f}")
 
     print()
 
     # Test parallel timelines
     print("Testing Parallel Timelines:")
-    for name, gem in test_gematrias:
+    test_roots = [
+        ("שלום", 376),
+        ("אור", 207),
+        ("אהבה", 13),
+    ]
+    for name, gem in test_roots:
         pos = qp.timelines.map_root_to_timelines(gem)
         print(f"  {name}: Heb={pos.hebrew_day}, Greg={pos.gregorian_day}, coherence={pos.coherence:.2f}")
 
-    # Find rabbit holes
-    holes = qp.timelines.find_rabbit_holes()
-    print(f"\n  Found {len(holes)} rabbit holes")
-    if holes:
-        top_hole = holes[0]
-        print(f"  Best hole: {top_hole['entry']} → {top_hole['exit']} (coherence={top_hole['coherence']:.2f})")
-
     print()
 
-    # Test full quantum prophecy
-    print("Testing Quantum Prophecy:")
+    # Test full prophecy system
+    print("Testing Temporal Prophecy (3-tier system):")
     trajectory = [341, 502, 424]
 
     result = qp.prophesy_multi_step(
         current_N=424,
-        root_gematria=424,
+        root_attractor_strength=0.7,  # Strong attractor
         trajectory=trajectory,
         steps_ahead=3
     )
@@ -501,11 +590,10 @@ if __name__ == "__main__":
     print(f"  Jump distance: {result.jump_distance}")
     print(f"  Confidence: {result.confidence:.3f}")
 
-    if result.method == "QUANTUM_TUNNEL":
-        print(f"  🐇 Tunnel probability: {result.tunneling_probability:.3f}")
-        print(f"  📅 Calendar conflict: {result.calendar_conflict:.3f}")
+    if result.method == "TENSION_JUMP":
+        print(f"  📅 Calendar tension: {result.calendar_conflict:.3f}")
 
     print()
     print("Statistics:", qp.get_statistics())
     print()
-    print("✓ Quantum Prophecy operational!")
+    print("✓ Temporal Prophecy operational — NO NUMEROLOGY!")

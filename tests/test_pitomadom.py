@@ -978,9 +978,10 @@ class TestWormholeGate(unittest.TestCase):
         from datetime import date
 
         gate = WormholeGate()
-        root = ("ש", "ל", "ם")
+        # Now uses attractor_strength instead of root (NO NUMEROLOGY)
+        attractor_strength = 0.7
 
-        result = gate.warp(date(2024, 6, 1), root, WarpDirection.FORWARD, max_days=60)
+        result = gate.warp(date(2024, 6, 1), attractor_strength, WarpDirection.FORWARD, max_days=60)
 
         self.assertTrue(result.success)
         self.assertGreater(result.days_warped, 0)

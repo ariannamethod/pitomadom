@@ -312,48 +312,48 @@ class CalendarConflict:
 
         return jumps
 
-    def compute_root_drift_resonance(
+    def compute_calendar_resonance(
         self,
-        root_gematria: int,
+        attractor_strength: float,
         gregorian_date: Optional[date] = None
     ) -> float:
         """
-        Compute resonance between a root's gematria and calendar drift.
+        Compute resonance between root's attractor strength and calendar state.
 
-        Some roots "resonate" with specific drift states:
-        - Roots divisible by 11 → aligned with annual drift
-        - Roots divisible by 19 → aligned with Metonic cycle
-        - Roots divisible by 7 → aligned with weekly cycle
+        NO NUMEROLOGY: We don't check if gematria divides by magic numbers.
+        Instead, we combine the root's semantic attractor strength with
+        the REAL calendar state (drift, metonic phase, dissonance).
+
+        Args:
+            attractor_strength: How strongly this root pulls (0.0-1.0)
+                               From semantic field, NOT from gematria % N
+            gregorian_date: Date for calendar calculations
 
         Returns:
             Resonance score 0.0-1.0
         """
         state = self.get_state(gregorian_date)
 
-        scores = []
+        # Calendar factors (REAL astronomical state)
+        # High drift = high tension = resonance opportunity
+        drift_factor = min(abs(state.cumulative_drift) / 33.0, 1.0)
 
-        # Annual drift resonance (11-day cycle)
-        annual_res = 1.0 if root_gematria % 11 == 0 else (
-            0.5 * (1 - (root_gematria % 11) / 11)
+        # Metonic phase: mid-cycle = maximum divergence
+        metonic_factor = 4 * state.metonic_phase * (1 - state.metonic_phase)
+
+        # Dissonance amplifies resonance
+        dissonance_factor = state.dissonance
+
+        # Combined calendar tension
+        calendar_tension = (
+            0.4 * drift_factor +
+            0.3 * metonic_factor +
+            0.3 * dissonance_factor
         )
-        scores.append(annual_res * (1 - state.annual_drift_phase))
 
-        # Metonic resonance (19-year cycle)
-        metonic_res = 1.0 if root_gematria % 19 == 0 else (
-            0.3 * (1 - (root_gematria % 19) / 19)
-        )
-        scores.append(metonic_res * state.metonic_phase)
-
-        # Weekly resonance (7-day cycle)
-        weekly_res = 1.0 if root_gematria % 7 == 0 else (
-            0.2 * (1 - (root_gematria % 7) / 7)
-        )
-        day_of_week = state.gregorian_date.weekday() / 7
-        scores.append(weekly_res * (1 - abs(day_of_week - 0.5) * 2))
-
-        # Combine with dissonance as amplifier
-        base_resonance = sum(scores) / len(scores)
-        return base_resonance * (0.5 + 0.5 * state.dissonance)
+        # Root resonates based on its attractor strength × calendar tension
+        # Strong attractor + high tension = high resonance
+        return attractor_strength * (0.5 + 0.5 * calendar_tension)
 
 
 # Quick test
@@ -382,18 +382,12 @@ if __name__ == "__main__":
         print(f"   {jump_date}: dissonance={dissonance:.3f}")
     print()
 
-    # Test root resonance
-    test_roots = [
-        ("אמר", 241),  # Say
-        ("שלם", 370),  # Peace/Complete - divisible by 10
-        ("אהב", 8),    # Love
-        ("קדש", 404),  # Holy
-    ]
-
-    print("🔮 Root drift resonance:")
-    for root_str, gem in test_roots:
-        res = conflict.compute_root_drift_resonance(gem)
-        print(f"   {root_str} ({gem}): {res:.3f}")
+    # Test calendar resonance (NO NUMEROLOGY - uses attractor strength)
+    print("🔮 Calendar Resonance (by attractor strength, NOT gematria):")
+    test_strengths = [0.3, 0.5, 0.7, 1.0]
+    for strength in test_strengths:
+        res = conflict.compute_calendar_resonance(strength)
+        print(f"   Attractor strength {strength}: resonance = {res:.3f}")
 
     print()
-    print("✓ Calendar Conflict operational!")
+    print("✓ Calendar Conflict operational — NO NUMEROLOGY!")
