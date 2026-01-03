@@ -71,6 +71,10 @@ from .circalunar_clock import (  # NEW v1.1: Planetary Rhythms
     LunarState,
     CircalunarState,
 )
+from .cosmic import (  # NEW v1.1: Full Integration
+    CosmicPitomadom,
+    CosmicOutput,
+)
 
 __all__ = [
     # Gematria
@@ -122,4 +126,7 @@ __all__ = [
     "CircalunarClock",
     "LunarState",
     "CircalunarState",
+    # Cosmic Integration (v1.1)
+    "CosmicPitomadom",
+    "CosmicOutput",
 ]
