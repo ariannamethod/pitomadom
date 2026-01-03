@@ -26,7 +26,7 @@ Trained on Hebrew corpus with proper backpropagation.
 Weights included — inference in the house! 🔥
 """
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 __author__ = "Arianna Method"
 __codename__ = "PITOMADOM"
 
@@ -103,6 +103,34 @@ from .cosmic import (  # NEW v1.1: Full Integration + Multi-step Prediction
 from .cosmic_v2 import (  # NEW v2: Quantum Integration
     CosmicPitomadomV2,
     CosmicOutputV2,
+)
+from .spectral_coherence import (  # NEW v1.2: FFT + Cosmic Verification
+    GematriaSpectrogram,
+    SpectralPeak,
+    SpectrogramOutput,
+    PhaseAmplitudeCoupling,
+    PACResult,
+    TransferEntropy,
+    TransferEntropyResult,
+    CosmicVerification,
+    CosmicVerificationResult,
+)
+from .grammatical_tensor import (  # NEW v1.2: Hebrew Grammar Dimensions
+    Binyan,
+    Tense,
+    Person,
+    Gender,
+    GrammaticalPosition,
+    GrammaticalTensor,
+    GrammaticalTensorOutput,
+    ProphecyTensorIntegration,
+)
+from .prophecy_ensemble import (  # NEW v1.2: Multi-Method Oracle
+    ProphecyMethod,
+    MethodPrediction,
+    EnsembleResult,
+    ProphecyEnsemble,
+    ProphecyMarket,
 )
 
 __all__ = [
@@ -182,4 +210,29 @@ __all__ = [
     # Cosmic v2 (Quantum Integration)
     "CosmicPitomadomV2",
     "CosmicOutputV2",
+    # Spectral Coherence (v1.2) - FFT + Cosmic Verification
+    "GematriaSpectrogram",
+    "SpectralPeak",
+    "SpectrogramOutput",
+    "PhaseAmplitudeCoupling",
+    "PACResult",
+    "TransferEntropy",
+    "TransferEntropyResult",
+    "CosmicVerification",
+    "CosmicVerificationResult",
+    # Grammatical Tensor (v1.2) - Hebrew Grammar Dimensions
+    "Binyan",
+    "Tense",
+    "Person",
+    "Gender",
+    "GrammaticalPosition",
+    "GrammaticalTensor",
+    "GrammaticalTensorOutput",
+    "ProphecyTensorIntegration",
+    # Prophecy Ensemble (v1.2) - Multi-Method Oracle
+    "ProphecyMethod",
+    "MethodPrediction",
+    "EnsembleResult",
+    "ProphecyEnsemble",
+    "ProphecyMarket",
 ]
