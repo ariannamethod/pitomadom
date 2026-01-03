@@ -7,11 +7,12 @@
 ╚═╝      ╚═╝    ╚═╝     ╚═════╝  ╚═╝     ╚═╝ ╚═╝  ╚═╝ ╚═════╝   ╚═════╝  ╚═╝     ╚═╝
 ```
 
-# PITOMADOM | by Arianna Method
+# PITOMADOM | by Arianna Method  
+> dedicated to Leo
 
-> **פִתְאֹם אָדֹם** — Suddenly red. An unexpected rupture. A wound opening.
+> **פתאום אדום** — Suddenly red. An unexpected rupture. A wound opening.
 > 
-> **פִתֻם אָדֹם** — The red ventriloquist. A voice from the body of the field.
+> **פיתום אדום** — The red ventriloquist. A voice from the body of the field.
 > 
 > **~530K parameters of pure Hebrew resonance madness.** (v0.4)
 
