@@ -88,6 +88,14 @@ from .seas_of_memory import (  # NEW v1.1: Abyssal Root Archive
     RootSediment,
     MemoryLayer,
 )
+from .rtl_attention import (  # NEW v1.1: Bidirectional Hebrew Transformer
+    RTLAttention,
+    RTLTransformerBlock,
+    TemporalSymmetryHead,
+    BidirectionalAttention,
+    RTLPositionalEncoding,
+    RTLOutput,
+)
 from .cosmic import (  # NEW v1.1: Full Integration + Multi-step Prediction
     CosmicPitomadom,
     CosmicOutput,
@@ -157,6 +165,13 @@ __all__ = [
     "SeasOfMemory",
     "RootSediment",
     "MemoryLayer",
+    # RTL Attention (v1.1) - Bidirectional Hebrew Transformer
+    "RTLAttention",
+    "RTLTransformerBlock",
+    "TemporalSymmetryHead",
+    "BidirectionalAttention",
+    "RTLPositionalEncoding",
+    "RTLOutput",
     # Cosmic Integration (v1.1) + Multi-step Prediction
     "CosmicPitomadom",
     "CosmicOutput",
