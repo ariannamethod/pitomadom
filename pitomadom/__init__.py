@@ -171,6 +171,11 @@ from .statistics import (  # NEW v1.2: Surrogate Tests & FDR Correction
     FDRResult,
     test_multiple_hypotheses,
 )
+from .field_coherence import (  # NEW v1.2: TNFR-Inspired Field Coherence
+    FieldCoherence,
+    FieldTetrad,
+    CoherenceState,
+)
 
 __all__ = [
     # Gematria
@@ -308,4 +313,8 @@ __all__ = [
     "FDRCorrection",
     "FDRResult",
     "test_multiple_hypotheses",
+    # Field Coherence (v1.2) - TNFR-Inspired
+    "FieldCoherence",
+    "FieldTetrad",
+    "CoherenceState",
 ]

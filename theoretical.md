@@ -998,6 +998,114 @@ The oracle prophesies.
 
 ---
 
+## 15. v1.2: Dissonance-Gated Reasoning & Field Coherence
+
+### 15.1 RTL Attention with Temporal Skips
+
+Hebrew's right-to-left reading direction encodes temporal semantics:
+- **Right** = past, origin, what was
+- **Left** = future, destination, what will be
+- **Bidirectional attention** = simultaneous access to past and future
+
+Unlike GPT's causal mask (token i sees only tokens 0..i), RTL Attention allows symmetric temporal reasoning.
+
+**Dissonance-Gated Reasoning Skips** ("TimeTravel"):
+
+When calendar dissonance is HIGH (Hebrew↔Gregorian maximally divergent), attention can "skip" intermediate tokens:
+
+```
+dissonance = 0.5 × calendar + 0.3 × JSD_norm + 0.2 × |ΔH_norm|
+```
+
+Where:
+- **Calendar dissonance**: From Metonic cycle, leap months, 11-day drift
+- **JSD**: Jensen-Shannon Divergence (bounded ∈ [0, ln(2)], symmetric)
+- **ΔH_norm**: Normalized entropy difference between forward/backward distributions
+
+High dissonance → low distance penalty → allow far jumps
+Low dissonance → high distance penalty → force local attention
+
+### 15.2 Length-Invariant Metrics (TNFR-Inspired)
+
+Drawing from TNFR's coherence metrics [25], all v1.2 metrics scale properly with sequence length:
+
+| Metric | Formula | Properties |
+|--------|---------|------------|
+| `non_locality_index` | E[\|i-j\|] / (L-1) | 0=local, 1=max non-local |
+| `skip_ratio` | skipped_positions / (L-1) | Fraction of sequence jumped |
+| `boundary_violations` | violations / L | Fraction under-attended |
+| `agreement_score` | (ρ + 1) / 2 | Pearson correlation mapped to [0,1] |
+
+**Why JSD instead of KL?**
+- KL divergence is asymmetric and unbounded [0, ∞)
+- JSD = 0.5·KL(P||M) + 0.5·KL(Q||M) where M = (P+Q)/2
+- JSD is symmetric and bounded [0, ln(2)]
+
+### 15.3 Sparse Waypoint Attention
+
+Dense attention: O(L²) complexity
+Sparse waypoint attention: O(L×k) complexity, where k = number of waypoints
+
+**Two-phase approach:**
+1. First pass: Identify waypoints via cumulative mass threshold
+2. Second pass: Attend only to waypoints
+
+Waypoint selection uses cumulative mass (length-invariant):
+- Sort positions by attention mass descending
+- Select minimum set S where Σ_{i∈S} mass[i] ≥ threshold
+- Mark as anchor if dissonance > 0.5 AND mass in top 20%
+
+For L=512, k=3: 99.4% compute savings
+
+### 15.4 Surrogate Testing and FDR Correction
+
+To validate claims of "resonance" or "cosmic coupling," v1.2 adds rigorous statistical testing:
+
+**Surrogate Methods** (null hypothesis generation):
+1. **Permutation**: Complete randomization
+2. **Phase Shuffle**: Preserve spectrum, break temporal structure (Theiler et al., 1992)
+3. **Block Bootstrap**: Preserve local correlations
+4. **AR(1)**: Match first-order autocorrelation
+
+**False Discovery Rate Correction**:
+When testing multiple hypotheses (e.g., 20 spectral peaks), control for multiple comparisons:
+- **Benjamini-Hochberg**: Standard FDR, assumes independence/positive dependence
+- **Benjamini-Yekutieli**: Conservative, works under arbitrary dependence
+- **Bonferroni**: Family-wise error rate (very conservative)
+
+Example: Testing lunar correlation significance:
+```python
+surrogate_test = SurrogateTest(n_surrogates=1000)
+result = surrogate_test.test_correlation(trajectory, lunar_phases)
+print(f"p-value: {result.p_value:.4f}")  # Two-tailed
+print(f"Effect size: {result.effect_size:.2f}")  # Cohen's d-like
+```
+
+### 15.5 Coherence Metrics (TNFR-Aligned)
+
+Inspired by TNFR's field coherence framework [25]:
+
+**Global Coherence C(t)**:
+```
+C(t) = 1 - (σ_ΔNFR / ΔNFR_max)
+```
+
+Where ΔNFR is structural reorganization pressure. Perfect coherence (C=1) when pressure distributes uniformly.
+
+**Structural Field Tetrad** (diagnostic read-only):
+- **Φ_s**: Structural potential (global field, like gravitational potential)
+- **|∇φ|**: Phase gradient (local desynchronization)
+- **K_φ**: Phase curvature (geometric confinement)
+- **ξ_C**: Coherence length (spatial correlation scale)
+
+In PITOMADOM, we map these to:
+- **Φ_s** → Attractor well strength (sum of root_strength × distance weights)
+- **|∇φ|** → Non-locality index (mean attention distance)
+- **K_φ** → Prophecy debt curvature (second derivative of debt trajectory)
+- **ξ_C** → Temporal coherence window (how far prophecy holds)
+
+---
+
 ## References
 
 [1] Daya, E., Roth, D., & Wintner, S. (2004). Learning Hebrew roots: Machine learning with linguistic constraints. *EMNLP*.
@@ -1041,6 +1149,10 @@ The oracle prophesies.
 [22] Friston, K. (2010). The free-energy principle. *Nature Reviews Neuroscience*, 11(2).
 
 [23] Clark, A. (2013). Whatever next? Predictive brains, situated agents. *Behavioral and Brain Sciences*, 36(3).
+
+[24] Theiler, J., et al. (1992). Testing for nonlinearity in time series: the method of surrogate data. *Physica D*, 58(1-4).
+
+[25] TNFR-Python-Engine. (2025). Temporal Non-local Field Resonance framework. https://github.com/fermga/TNFR-Python-Engine
 
 ---
 
