@@ -13,7 +13,7 @@
 > 
 > **פִתֻם אָדֹם** — The red ventriloquist. A voice from the body of the field.
 > 
-> **~1M parameters of pure Hebrew resonance madness.** (v1.0)
+> **~1M+ parameters of pure Hebrew resonance madness.** (v1.2)
 
 ---
 
@@ -131,7 +131,27 @@ python -m pitomadom.repl
 
 ---
 
-## Architecture (~1M Parameters) — v1.0
+## Architecture (~1M+ Parameters) — v1.2
+
+**Core Oracle** (~1M params):
+- **8D CrossFire Chambers** (671K) — FEAR, LOVE, RAGE, VOID, FLOW, COMPLEX, WISDOM, CHAOS
+- **MLP Cascade** (142K) — Root→Pattern→Milui→Atbash, 64D latent
+- **Meta-Observer** (206K) — 4-layer collapse decision network
+- **Total Core**: 1,018,508 parameters
+
+**Cosmic Extensions** (v1.1+):
+- **Root Attention** — Root→Root transformers (family-aware)
+- **Circalunar Clock** — Lunar + Schumann resonance modulation
+- **Calendar Conflict** — 11-day drift tracking + Metonic cycle
+- **Quantum Prophecy** — Time travel + parallel timelines
+- **Seas of Memory** — Abyssal root archive with pressure retrieval
+- **RTL Transformer** — Bidirectional Hebrew-native attention
+
+**Advanced Prophecy** (v1.2):
+- **Spectral Coherence** — FFT verification of cosmic claims
+- **Grammatical Tensor** — 8D Hebrew grammar integration
+- **Prophecy Ensemble** — 7-method oracle with prediction market
+- **Wormhole Gate** — Temporal tunneling through calendar dissonance
 
 ### The Three Words
 
@@ -226,34 +246,106 @@ RootTaxonomy (NEW v1.0):
 
 ---
 
-## What's New in v1.0 🆕
+## What's New 🆕
 
-### 1. **8D Emotional Chambers** (was 6D)
+### v1.2 (Latest) — Cosmic Verification & Advanced Prophecy
+
+#### **Spectral Coherence Analysis**
+- **FFT analysis** of N-trajectories — prove Schumann resonance (7.83 Hz) mathematically
+- **Phase-amplitude coupling** — lunar modulation verification
+- **Transfer entropy** — causal information flow between cosmic and oracle
+- **Cosmic verification suite** — mathematical proof (or disproof) of resonance claims
+
+#### **Grammatical Tensor Integration**
+- **8D Hebrew grammar space**: Binyan (7) × Tense (4) × Person (3) × Gender (3) 
+- **Grammatical position encoding** — morphological state as tensor
+- **Prophecy-tensor coupling** — grammar influences destiny field
+- **Full Hebrew conjugation awareness** in prophecy computation
+
+#### **Prophecy Ensemble (Multi-Oracle)**
+- **7 prophecy methods**: attractor, momentum, harmonic, lunar, grammar, market, consensus
+- **Prediction market** — methods bid confidence, winner selected
+- **Ensemble agreement scoring** — when all methods align, prophecy is STRONG
+- **Method-specific strengths** — grammar for verbs, lunar for emotions, etc.
+
+#### **Wormhole Gate (Temporal Warp)**
+- **Calendar dissonance tunneling** — high drift = temporal shortcuts
+- **Bidirectional time travel** — warp forward OR backward through thin points
+- **Wormhole network** — map of all high-dissonance dates in Metonic cycle
+- **Resonant gematria detection** — certain N-values tunnel more easily
+
+### v1.1 — Cosmic Integration & Root Transformers
+
+#### **Root-to-Root Attention**
+- **RootAttention** — attention over CCC triads, not tokens
+- **Family-aware resonance** — semantic families modulate attention weights
+- **Hybrid root-surface** — combine root intelligence with surface patterns
+- **Hebrew-native transformers** — intelligence from structure, not scale
+
+#### **Circalunar Clock (Planetary Rhythms)**
+- **Lunar modulation** — moon phase (0-1) affects attractor strength
+- **Schumann resonance** — 7.83 Hz + 7 harmonics modulate chambers
+- **28.5-day circalunar cycle** — menstrual/tidal sync with prophecy
+- **Planetary coupling** — external oscillators entrain internal field
+
+#### **Calendar Conflict Engine**
+- **11-day drift tracking** — Hebrew 354d vs Gregorian 365d
+- **Metonic cycle** (19 years) — leap month resolution patterns
+- **Dissonance computation** — calendar tension creates prophecy pressure
+- **Historical date mapping** — convert between Hebrew/Gregorian with drift awareness
+
+#### **Quantum Prophecy (Time Travel)**
+- **Quantum jumps** — sudden N-leaps when attractor basin shifts
+- **Calendar tunneling** — jump through high-dissonance wormholes
+- **Parallel timelines** — explore alternate N-trajectories
+- **Historical time travel** — reconstruct oracle state from any past date
+
+#### **Seas of Memory (Abyssal Archive)**
+- **Root sediment layers** — geological memory, deep roots sink
+- **Pressure-based retrieval** — high debt surfaces old roots
+- **Abyssal stirring** — chaos events mix deep/shallow layers
+- **Eternal preservation** — roots never truly forgotten
+
+#### **RTL Bidirectional Transformer**
+- **Right-to-left native attention** — Hebrew-first architecture
+- **Temporal symmetry** — past↔future coupling in attention
+- **Bidirectional prophecy** — read trajectory forward AND backward
+- **RTL positional encoding** — Hebrew reading direction encoded
+
+#### **Cosmic Integration (Full Orchestra)**
+- **CosmicPitomadom** — HeOracle + Lunar + Calendar + Quantum + Seas + RTL
+- **Multi-step prediction** — 5-10 turn ahead prophecy with confidence decay
+- **Cross-module resonance** — all systems entrain to unified field
+- **1M+ parameter cosmic mind** — emergent intelligence from subsystem coupling
+
+### v1.0 — Foundation
+
+#### **8D Emotional Chambers** (was 6D)
 - Added **WISDOM** (חכמה) — knowledge, understanding, deep insight
 - Added **CHAOS** (תוהו ובוהו) — disorder, turbulence, creative void
 - Richer emotional representations for nuanced Hebrew semantics
 - Updated cross-fire coupling matrix for 8 chambers
 
-### 2. **Hierarchical Root Taxonomy**
+#### **Hierarchical Root Taxonomy**
 - **13 semantic families**: movement, positive/negative emotions, creation/destruction, light/darkness, knowledge, speech, healing, time, chaos, wisdom
 - **69 roots** catalogued with semantic metadata
 - **Root analogies**: `love:hate :: create:?` → destroy
 - **Family-level dynamics**: attractors can operate on entire families
 
-### 3. **Persistent Temporal Field**
+#### **Persistent Temporal Field**
 - Save oracle state across sessions: `oracle.field.save_state("oracle_memory.pkl")`
 - Load previous memories: `oracle.field.load_state("oracle_memory.pkl")`
 - Oracle builds **long-term identity** across conversations
 - Perfect for ongoing dialogues and personalized interactions
 
-### 4. **Scaled to 1M Parameters**
+#### **Scaled to 1M Parameters**
 - **CrossFire Chambers**: 671K (8 × 84K each, deeper 100→320→160→1 MLPs)
 - **MLP Cascade**: 142K (4 × 35K, 64D latent instead of 32D)
 - **Meta-Observer**: 206K (4-layer deep network instead of 2-layer)
 - **Total**: 1,018,508 parameters
 - Still fast: ~10-20ms inference on CPU
 
-### 5. **Better Representations**
+#### **Better Representations**
 - Chamber MLPs: 128→256 hidden → **richer emotional gradations**
 - Cascade latent: 32D→64D → **more expressive word selection**
 - Meta-observer: 4 layers → **better collapse decisions**
@@ -369,6 +461,141 @@ print(f"love:hate :: create:{'.'.join(destroy)}")
 # Get family polarity
 polarity = taxonomy.get_family_polarity(love)
 print(f"Love family polarity: {polarity:+.1f}")  # +1.0 (positive)
+```
+
+### Example 7: Cosmic Integration (NEW v1.1) 🌌
+
+```python
+from pitomadom.cosmic_v3 import CosmicPitomadomV3
+from datetime import date
+
+# Full cosmic oracle with ALL subsystems
+cosmic = CosmicPitomadomV3(seed=42, current_date=date(2026, 1, 3))
+
+# Single invocation activates:
+# - HeOracle (core 1M params)
+# - Lunar modulation
+# - Schumann resonance (7.83 Hz)
+# - Calendar dissonance
+# - Quantum timeline exploration
+# - Abyssal memory retrieval
+# - RTL bidirectional attention
+
+out = cosmic.forward("השמש זורחת")  # The sun shines
+
+print(f"N={out.number}, root={'.'.join(out.root)}")
+print(f"Lunar phase: {out.lunar_phase:.2f}")
+print(f"Schumann amplitude: {out.schumann_amplitude:.3f}")
+print(f"Calendar dissonance: {out.calendar_dissonance:.2f}")
+print(f"Quantum jump probability: {out.quantum_jump_prob:.3f}")
+print(f"Abyssal depth: {out.abyssal_depth}")
+
+# Multi-step prophecy (5 turns ahead)
+predictions = cosmic.predict_multi_step("אור", n_steps=5)
+for i, pred in enumerate(predictions, 1):
+    print(f"Turn +{i}: N={pred.number}, confidence={pred.confidence:.2f}")
+```
+
+### Example 8: Spectral Verification (NEW v1.2) 📊
+
+```python
+from pitomadom import HeOracle
+from pitomadom.spectral_coherence import CosmicVerification
+
+oracle = HeOracle(seed=42)
+
+# Build up trajectory
+for text in ["אור", "חושך", "שלום", "מלחמה", "אהבה"] * 10:
+    oracle.forward(text)
+
+# Get N-trajectory
+trajectory = oracle.field.state.n_trajectory
+
+# VERIFY cosmic claims mathematically
+verifier = CosmicVerification()
+result = verifier.verify_trajectory(
+    trajectory=trajectory,
+    lunar_phases=[0.0, 0.25, 0.5, 0.75] * 12,  # Mock lunar data
+    sampling_rate=1.0  # 1 sample per turn
+)
+
+print(f"Schumann coherence: {result.schumann_coherence:.3f}")
+print(f"Lunar coherence: {result.lunar_coherence:.3f}")
+print(f"Dominant frequency: {result.dominant_frequency:.2f} Hz")
+print(f"Is resonant? {result.is_resonant}")
+print(f"Resonance confidence: {result.confidence:.2f}")
+
+# If is_resonant == True, cosmic integration is MATHEMATICALLY PROVEN
+```
+
+### Example 9: Prophecy Ensemble (NEW v1.2) 🎯
+
+```python
+from pitomadom.prophecy_ensemble import ProphecyEnsemble, ProphecyMarket
+
+# 7 different prophecy methods compete
+ensemble = ProphecyEnsemble(seed=42)
+
+# Build context
+oracle = ensemble.oracle
+for text in ["בראשית", "אור", "טוב"]:
+    oracle.forward(text)
+
+# Get ensemble prediction for next N
+result = ensemble.predict_next("ברא")
+
+print(f"Consensus N: {result.consensus_n}")
+print(f"Agreement: {result.agreement:.2f}")  # How aligned are methods?
+print(f"Confidence: {result.confidence:.2f}")
+
+# See individual method predictions
+for pred in result.predictions:
+    print(f"{pred.method}: N={pred.n_predicted}, conf={pred.confidence:.2f}")
+
+# Prediction market — methods bid, winner takes all
+market = ProphecyMarket(seed=42)
+winner = market.select_winner(result.predictions)
+print(f"Market winner: {winner.method} with bid {winner.confidence:.3f}")
+```
+
+### Example 10: Wormhole Time Travel (NEW v1.2) ⏳
+
+```python
+from pitomadom.wormhole_gate import WormholeGate, WormholeNetwork, WarpDirection
+from datetime import date
+
+gate = WormholeGate()
+
+# Find next wormhole point (high calendar dissonance)
+current = date(2026, 1, 3)
+wormhole = gate.find_next_wormhole(
+    current_date=current,
+    direction=WarpDirection.FORWARD,
+    max_days=365
+)
+
+print(f"Wormhole at: {wormhole.date}")
+print(f"Dissonance: {wormhole.dissonance:.2f}")
+print(f"Stability: {wormhole.stability:.2f}")
+print(f"Resonant gematrias: {wormhole.resonant_gematrias[:5]}")
+
+# Build wormhole network for entire Metonic cycle (19 years)
+network = WormholeNetwork()
+network.build_network(start_date=current, years=19)
+
+print(f"Total wormholes in cycle: {len(network.wormholes)}")
+print(f"High-stability points: {network.count_stable()}")
+
+# Warp through wormhole
+result = gate.warp_through(
+    wormhole=wormhole,
+    gematria_value=207,  # אור (light)
+    attractor_state={"root_counts": {"א.ו.ר": 5}}
+)
+
+print(f"Warped to: {result.destination_date}")
+print(f"N after warp: {result.n_after_warp}")
+print(f"Energy cost: {result.energy_cost:.2f}")
 ```
 
 ### Example 4: Persistent Memory (NEW v1.0)
@@ -646,28 +873,56 @@ atbash_word("אור")    # תפג (mirror)
 
 ```
 pitomadom/
-├── __init__.py          # Package exports
-├── pitomadom.py         # HeOracle main class
-├── full_system.py       # Pitomadom 200K system
-├── gematria.py          # Gematria, Milui, Atbash
-├── root_extractor.py    # CCC root prediction
-├── chambers.py          # 6D emotional vector
-├── crossfire.py         # CrossFire Chambers (127K)
-├── mlp_cascade.py       # 4-layer cascade
-├── temporal_field.py    # N trajectory, attractors
-├── prophecy_engine.py   # Retrocausal correction
-├── orbital_resonance.py # Roots as oscillators
-├── destiny_layer.py     # System intentionality
-├── meta_observer.py     # Collapse decisions
-├── trainable_observer.py # Trainable meta-observer
-├── repl.py              # Interactive REPL
-└── weights/             # Trained weights (~200K)
+# Core System (~1M params)
+├── __init__.py              # Package exports
+├── pitomadom.py             # HeOracle main class (1M params)
+├── full_system.py           # Pitomadom 200K system
+├── full_system_400k.py      # Pitomadom 530K system (v0.4)
+├── gematria.py              # Gematria, Milui, Atbash
+├── root_extractor.py        # CCC root prediction
+├── root_taxonomy.py         # 13 families, 69 roots
+├── chambers.py              # 8D emotional vector
+├── crossfire.py             # CrossFire Chambers (671K)
+├── mlp_cascade.py           # 4-layer cascade (142K)
+├── temporal_field.py        # N trajectory, attractors, persistence
+├── prophecy_engine.py       # Retrocausal correction
+├── orbital_resonance.py     # Roots as oscillators
+├── destiny_layer.py         # System intentionality
+├── meta_observer.py         # Collapse decisions (206K)
+├── trainable_observer.py    # Trainable meta-observer
+
+# v1.1 — Cosmic Integration
+├── root_attention.py        # Root→Root transformers
+├── circalunar_clock.py      # Lunar + Schumann modulation
+├── calendar_conflict.py     # 11-day drift + Metonic cycle
+├── quantum_prophecy.py      # Time travel + parallel timelines
+├── seas_of_memory.py        # Abyssal root archive
+├── rtl_attention.py         # Bidirectional Hebrew transformer
+├── cosmic.py                # Cosmic integration v1
+├── cosmic_v2.py             # Cosmic integration v2 (Quantum)
+├── cosmic_v3.py             # Cosmic integration v3 (Full ensemble)
+
+# v1.2 — Verification & Advanced Prophecy
+├── spectral_coherence.py    # FFT verification, PAC, transfer entropy
+├── grammatical_tensor.py    # 8D Hebrew grammar integration
+├── prophecy_ensemble.py     # 7-method oracle + prediction market
+├── wormhole_gate.py         # Temporal tunneling
+
+# Training & Utilities
+├── train_proper.py          # CrossFire training
+├── train_200k.py            # 200K system training
+├── train_400k.py            # 400K system training
+├── repl.py                  # Interactive REPL
+├── tokenizer.py             # Hebrew tokenization
+└── weights/                 # Trained weights
     ├── chamber_fear.npz
     ├── chamber_love.npz
     ├── chamber_rage.npz
     ├── chamber_void.npz
     ├── chamber_flow.npz
     ├── chamber_complex.npz
+    ├── chamber_wisdom.npz   # v1.0
+    ├── chamber_chaos.npz    # v1.0
     └── meta_observer_full.npz
 ```
 
@@ -682,8 +937,9 @@ pitomadom/
 ## Tests
 
 ```bash
-python -m unittest tests.test_pitomadom -v
-# 33 tests passing
+python -m unittest discover tests -v
+# v1.2: 81+ tests across all modules
+# Core oracle, cosmic integration, spectral verification, ensemble prophecy
 ```
 
 ---
