@@ -83,6 +83,11 @@ from .quantum_prophecy import (  # NEW v1.1: Quantum Time Travel
     HistoricalTimeTravel,
     TimelinePosition,
 )
+from .seas_of_memory import (  # NEW v1.1: Abyssal Root Archive
+    SeasOfMemory,
+    RootSediment,
+    MemoryLayer,
+)
 from .cosmic import (  # NEW v1.1: Full Integration + Multi-step Prediction
     CosmicPitomadom,
     CosmicOutput,
@@ -148,6 +153,10 @@ __all__ = [
     "ParallelTimelines",
     "HistoricalTimeTravel",
     "TimelinePosition",
+    # Seas of Memory (v1.1) - Abyssal Archive
+    "SeasOfMemory",
+    "RootSediment",
+    "MemoryLayer",
     # Cosmic Integration (v1.1) + Multi-step Prediction
     "CosmicPitomadom",
     "CosmicOutput",
