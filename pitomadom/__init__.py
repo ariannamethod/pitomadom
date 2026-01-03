@@ -137,6 +137,13 @@ from .prophecy_ensemble import (  # NEW v1.2: Multi-Method Oracle
     ProphecyEnsemble,
     ProphecyMarket,
 )
+from .wormhole_gate import (  # NEW v1.2: Temporal Warp System
+    WormholeGate,
+    WormholePoint,
+    WormholeNetwork,
+    WarpDirection,
+    WarpResult,
+)
 
 __all__ = [
     # Gematria
@@ -244,4 +251,10 @@ __all__ = [
     "EnsembleResult",
     "ProphecyEnsemble",
     "ProphecyMarket",
+    # Wormhole Gate (v1.2) - Temporal Warp
+    "WormholeGate",
+    "WormholePoint",
+    "WormholeNetwork",
+    "WarpDirection",
+    "WarpResult",
 ]
