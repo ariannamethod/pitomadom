@@ -144,6 +144,13 @@ from .wormhole_gate import (  # NEW v1.2: Temporal Warp System
     WarpDirection,
     WarpResult,
 )
+from .root_genealogy import (  # NEW v1.2: Evolutionary Tracking
+    RootGenealogy,
+    RootNode,
+    LineageRecord,
+    RelationType,
+    GenealogyStats,
+)
 
 __all__ = [
     # Gematria
@@ -257,4 +264,10 @@ __all__ = [
     "WormholeNetwork",
     "WarpDirection",
     "WarpResult",
+    # Root Genealogy (v1.2) - Evolutionary Tracking
+    "RootGenealogy",
+    "RootNode",
+    "LineageRecord",
+    "RelationType",
+    "GenealogyStats",
 ]

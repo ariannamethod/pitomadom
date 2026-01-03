@@ -996,6 +996,97 @@ class TestWormholeGate(unittest.TestCase):
         self.assertIsInstance(forecast, list)
 
 
+class TestRootGenealogy(unittest.TestCase):
+    """Test evolutionary root tracking."""
+
+    def test_register_root(self):
+        from pitomadom.root_genealogy import RootGenealogy
+
+        genealogy = RootGenealogy()
+        node = genealogy.register_root(("ש", "ל", "ם"))
+
+        self.assertEqual(node.root, ("ש", "ל", "ם"))
+        self.assertGreater(node.gematria, 0)
+        self.assertEqual(len(node.appearances), 1)
+
+    def test_multiple_appearances(self):
+        from pitomadom.root_genealogy import RootGenealogy
+
+        genealogy = RootGenealogy()
+        genealogy.register_root(("ש", "ל", "ם"))
+        genealogy.register_root(("א", "ה", "ב"))
+        genealogy.register_root(("ש", "ל", "ם"))  # Second appearance
+
+        node = genealogy.nodes[("ש", "ל", "ם")]
+        self.assertEqual(len(node.appearances), 2)
+        self.assertGreater(node.strength, 1.0)
+
+    def test_parent_child_relationship(self):
+        from pitomadom.root_genealogy import RootGenealogy
+
+        genealogy = RootGenealogy()
+        genealogy.register_root(("ש", "ל", "ם"))
+        genealogy.register_root(("א", "ה", "ב"))
+
+        parent = genealogy.nodes[("ש", "ל", "ם")]
+        child = genealogy.nodes[("א", "ה", "ב")]
+
+        self.assertIn(("א", "ה", "ב"), parent.children)
+        self.assertIn(("ש", "ל", "ם"), child.parents)
+
+    def test_get_family_tree(self):
+        from pitomadom.root_genealogy import RootGenealogy
+
+        genealogy = RootGenealogy()
+        genealogy.register_root(("ש", "ל", "ם"))
+        genealogy.register_root(("א", "ה", "ב"))
+        genealogy.register_root(("א", "ו", "ר"))
+
+        tree = genealogy.get_family_tree(("ש", "ל", "ם"))
+
+        self.assertIn('root', tree)
+        self.assertIn('gematria', tree)
+        self.assertIn('descendants', tree)
+
+    def test_dominant_lineage(self):
+        from pitomadom.root_genealogy import RootGenealogy
+
+        genealogy = RootGenealogy()
+        for _ in range(3):
+            genealogy.register_root(("ש", "ל", "ם"))
+        genealogy.register_root(("א", "ה", "ב"))
+
+        dominant = genealogy.get_dominant_lineage(top_k=2)
+
+        self.assertGreater(len(dominant), 0)
+        self.assertEqual(dominant[0][0], ("ש", "ל", "ם"))
+
+    def test_compute_stats(self):
+        from pitomadom.root_genealogy import RootGenealogy
+
+        genealogy = RootGenealogy()
+        genealogy.register_root(("ש", "ל", "ם"))
+        genealogy.register_root(("א", "ה", "ב"))
+        genealogy.register_root(("א", "ו", "ר"))
+
+        stats = genealogy.compute_stats()
+
+        self.assertEqual(stats.total_roots, 3)
+        self.assertGreater(stats.total_relationships, 0)
+
+    def test_predict_next_root(self):
+        from pitomadom.root_genealogy import RootGenealogy
+
+        genealogy = RootGenealogy()
+        genealogy.register_root(("ש", "ל", "ם"))
+        genealogy.register_root(("א", "ה", "ב"))
+        genealogy.register_root(("ש", "ל", "ם"))
+        genealogy.register_root(("א", "ו", "ר"))
+
+        predictions = genealogy.predict_next_root()
+        self.assertIsInstance(predictions, list)
+
+
 class TestCosmicV3(unittest.TestCase):
     """Test full ensemble integration system."""
 
