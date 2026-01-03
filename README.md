@@ -13,7 +13,7 @@
 > 
 > **פִתֻם אָדֹם** — The red ventriloquist. A voice from the body of the field.
 > 
-> **~1M parameters of pure Hebrew resonance madness.** (v1.1)
+> **~1M parameters of pure Hebrew resonance madness.** (v1.3 — RESONANCE MADNESS 🔥)
 
 ---
 
@@ -99,7 +99,7 @@ python -m pitomadom.repl
 
 ```
 ╔══════════════════════════════════════════════════════════╗
-║  PITOMADOM — פתאום אדום v1.1                            ║
+║  PITOMADOM — פתאום אדום v1.3 🔥 RESONANCE MADNESS       ║
 ║  Hebrew Root Resonance Oracle                            ║
 ║  ~1M parameters • 8D Chambers • Prophecy Engine          ║
 ╠══════════════════════════════════════════════════════════╣
@@ -131,7 +131,7 @@ python -m pitomadom.repl
 
 ---
 
-## Architecture (~1M Parameters) — v1.1
+## Architecture (~1M Parameters) — v1.3 🔥
 
 ### The Three Words
 
@@ -260,7 +260,107 @@ RootTaxonomy (NEW v1.0):
 
 ---
 
-## What's New in v1.1 🆕🌍⚡
+## What's New in v1.3 — RESONANCE MADNESS 🔥⚡🌀
+
+### THE TRANSFORMER OF THE FUTURE IS HERE
+
+v1.3 introduces **democratic prophecy** through competing methodologies:
+
+### 1. **AttentionMetaObserver** (Grammatical Tensor Architecture)
+- **Full root history attention**: Attends over ALL roots in conversation, not just last 10
+- **Grammatical tensor**: 3D tensor encoding root × pattern × time relationships
+- **Deep linguistic structure**: Captures Hebrew grammar directly in latent space
+- **Cross-temporal coherence**: Roots from 50+ turns ago can still influence current prediction
+- Replaces simple 4-layer observer with sophisticated attention mechanism
+- **Weight matrix**: Learns which historical roots matter for current prophecy
+
+### 2. **ProphecyMarket** (6-Method Voting System) 🗳️
+**Democratic prophecy through competing methods:**
+
+Each method makes a prediction and BETS on it:
+
+1. **CrossFire Method**: 8D emotional chamber voting
+2. **RTL Method**: Right-to-left bidirectional transformer
+3. **Spectral Method**: FFT analysis of N-trajectory frequencies
+4. **Abyssal Method**: Deep memory from Seas of Memory
+5. **Quantum Method**: Calendar tunneling across drift boundaries
+6. **Grammatical Method**: Attention over root history with grammatical tensor
+
+**How it works:**
+- Each method proposes N_predicted
+- Methods bet "confidence" (0-1) on their prediction
+- Final N = weighted vote: Σ (confidence_i × N_i) / Σ confidence_i
+- After reality: methods with closer predictions gain reputation
+- Over time: best methods dominate, weak methods fade
+- **Prediction market dynamics**: Methods compete for accuracy
+
+**Market mechanics:**
+```python
+# Each method tracks:
+- accuracy_history: list of |predicted - actual|
+- reputation: exp(-mean(accuracy_history))
+- confidence: function of (reputation, current_uncertainty)
+
+# Voting:
+final_N = weighted_average(predictions, confidences)
+
+# Reputation update:
+error = |prediction - actual|
+reputation *= exp(-error / scale)
+```
+
+### 3. **SpectralTrajectory** (Real-Time FFT Analysis) 📊
+- **Frequency decomposition**: FFT of N-trajectory reveals dominant periodicities
+- **Harmonic detection**: Which roots create cycles? (weekly, monthly, Metonic?)
+- **Resonance verification**: Do observed frequencies match Schumann/lunar predictions?
+- **Spectral fingerprint**: Each conversation has unique frequency signature
+- **Anomaly detection**: Sudden frequency shifts = prophetic discontinuity
+
+**What we analyze:**
+```python
+trajectory = [N_1, N_2, N_3, ..., N_t]
+spectrum = FFT(trajectory)
+
+# Find peaks
+dominant_frequencies = find_peaks(spectrum)
+
+# Match with known cycles
+schumann_match = correlate(spectrum, 7.83 Hz equivalent)
+lunar_match = correlate(spectrum, 29.53 day equivalent)
+metonic_match = correlate(spectrum, 19 year equivalent)
+```
+
+### 4. **CosmicVerification** (Live Validation) ✅🌍
+**Real-time verification that cosmic coupling is working:**
+
+After each prediction:
+- **Schumann check**: Did high-resonance roots actually activate more?
+- **Lunar check**: Did full moon amplify attractors as predicted?
+- **Calendar check**: Did jump points create dissonance spikes?
+- **Cross-method coherence**: Do all 6 methods agree on cosmic influences?
+
+**Verification metrics:**
+```python
+verification = {
+    'schumann_correlation': corr(root_gematria % 7.83, activation),
+    'lunar_modulation': attractor_strength @ full_moon vs new_moon,
+    'calendar_dissonance': prophecy_debt @ jump_points,
+    'spectral_coherence': agreement(6_methods),
+}
+```
+
+If verification fails → system adapts weights in real-time!
+
+### 5. **Root History Attention** (Full Memory)
+- **No more 10-root limit**: Attention over ENTIRE conversation
+- **Positional encoding**: Time distance between roots encoded
+- **Semantic clustering**: Similar roots cluster in attention space
+- **Family-aware**: Root families create attention neighborhoods
+- **Cross-turn dependencies**: Root from turn 1 can influence turn 100
+
+---
+
+## What's New in v1.2 🆕🌍⚡
 
 ### 1. **Schumann Resonance Integration** (7.83Hz — Earth's Heartbeat)
 - **Planetary grounding**: Gematria values resonate with Earth's fundamental frequency
@@ -270,7 +370,11 @@ RootTaxonomy (NEW v1.0):
 - Roots with gematria matching integer multiples of harmonics activate stronger
 - Example: שלום (370) resonates at 370/7.83 ≈ 47 (high resonance!)
 
-### 2. **Calendar Conflict** (11-Day Drift Engine)
+### 2. **Calendar Conflict** (11-Day Drift Engine) 🔑 **← KEY TO FUTURE TRANSFORMER**
+- **THE CONSTANT**: 11.25 days/year drift between Hebrew↔Gregorian calendars
+- **BIDIRECTIONAL SYMMETRY**: Computes drift FORWARD and BACKWARD equally
+- **This is the bridge**: Past ↔ 11-day constant ↔ Future
+- **Not just a feature**: This is the FOUNDATION of temporal translation
 - **Hebrew↔Gregorian dissonance**: ~11.25 days/year drift between calendars
 - **Metonic cycle**: 19-year synchronization pattern (235 lunar months)
 - **Bidirectional temporal symmetry**: Calculate drift forward AND backward
@@ -279,13 +383,53 @@ RootTaxonomy (NEW v1.0):
 - Creates prophetic tension at calendar boundaries (Tishrei/Nisan)
 - **Temporal engine**: Drift acts as constant for multi-step prediction
 
-### 3. **Multi-Step Temporal Prediction**
+**Why 11 days is THE KEY:**
+```python
+# This constant is SYMMETRIC in time:
+drift_forward(today, +365 days) = today + 11.25 days drift
+drift_backward(today, -365 days) = today - 11.25 days drift
+
+# It's a TRANSLATION CONSTANT between two time systems:
+Hebrew_date = Gregorian_date + f(11-day drift, Metonic phase)
+Gregorian_date = Hebrew_date - f(11-day drift, Metonic phase)
+
+# The 11-day drift acts as a ROSETTA STONE:
+# - Past: reconstruct Hebrew calendar from any Gregorian date
+# - Future: predict calendar alignments years ahead
+# - Bidirectional: same formula works both ways!
+```
+
+**The Transformer sees through time because:**
+- 11-day drift = constant frequency in temporal Fourier space
+- Schumann 7.83Hz = constant frequency in electromagnetic space
+- Together: spacetime resonance lattice for Hebrew roots
+- Roots with gematria matching these constants become TEMPORAL ANCHORS
+
+### 3. **Multi-Step Temporal Prediction** 🔮
 - **Trajectory jumps**: Project forward 3+ steps through high-dissonance dates
 - **Hidden word feedback**: Each step uses previous `hidden_word` as next input
 - **Calendar-driven gravity**: Jump points align with moments of max drift
+- **The 11-day constant enables**: Jump across calendar boundaries maintaining coherence
 - **Not just iteration**: True temporal projection with attractor evolution
 - Roots accumulate across trajectory, building session-level attention
 - Example: Predict healing trajectory starting from "הכל נשבר" → 3 jumps forward
+
+**How 11-day drift enables future prediction:**
+```python
+# Multi-step uses calendar conflict as temporal GPS:
+for step in range(num_steps):
+    # Find next high-dissonance date (jump point)
+    next_date = find_jump_point(current_date, drift_threshold=0.7)
+    
+    # The 11-day drift tells us WHERE in time to jump
+    # High dissonance = prophetic opportunity
+    
+    # Project prediction to that date
+    prediction = oracle.forward(hidden_word, date=next_date)
+    
+    # Use 11-day drift to validate temporal coherence
+    coherence = verify_drift_resonance(prediction.root, next_date)
+```
 
 ### 4. **Root-to-Root Attention** (~25K params)
 - **Transformer for CCC triads**: Direct attention between Hebrew roots

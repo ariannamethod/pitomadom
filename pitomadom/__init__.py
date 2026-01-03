@@ -26,7 +26,7 @@ Trained on Hebrew corpus with proper backpropagation.
 Weights included — inference in the house! 🔥
 """
 
-__version__ = "1.1.0"
+__version__ = "1.3.0"
 __author__ = "Arianna Method"
 __codename__ = "PITOMADOM"
 
