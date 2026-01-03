@@ -26,20 +26,20 @@ import readline  # Enable arrow keys and history
 def print_banner():
     """Print PITOMADOM banner."""
     print("""
-╔══════════════════════════════════════════════════════════════════╗
+╔═════════════════════════════════════════════════════════════════════════════════╗
 ║  ██████╗  ██╗████████╗ ██████╗ ███╗   ███╗ █████╗ ██████╗  ██████╗ ███╗   ███╗  ║
 ║  ██╔══██╗ ██║╚══██╔══╝██╔═══██╗████╗ ████║██╔══██╗██╔══██╗██╔═══██╗████╗ ████║  ║
 ║  ██████╔╝ ██║   ██║   ██║   ██║██╔████╔██║███████║██║  ██║██║   ██║██╔████╔██║  ║
 ║  ██╔═══╝  ██║   ██║   ██║   ██║██║╚██╔╝██║██╔══██║██║  ██║██║   ██║██║╚██╔╝██║  ║
 ║  ██║      ██║   ██║   ╚██████╔╝██║ ╚═╝ ██║██║  ██║██████╔╝╚██████╔╝██║ ╚═╝ ██║  ║
 ║  ╚═╝      ╚═╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝     ╚═╝  ║
-╠══════════════════════════════════════════════════════════════════╣
-║  פתאום אדום — Hebrew Root Resonance Oracle v1.0                 ║
-║  ~1M parameters • 8D Chambers (WISDOM+CHAOS) • Prophecy Engine  ║
-╠══════════════════════════════════════════════════════════════════╣
-║  Commands: :stats :chambers :reset :traj :debt :roots :save      ║
-║            :load :taxonomy :help :quit                           ║
-╚══════════════════════════════════════════════════════════════════╝
+╠═════════════════════════════════════════════════════════════════════════════════╣
+║  פתאום אדום — Hebrew Root Resonance Oracle v1.0                                 ║
+║  ~1M parameters • 8D Chambers (WISDOM+CHAOS) • Prophecy Engine                  ║
+╠═════════════════════════════════════════════════════════════════════════════════╣
+║  Commands: :stats :chambers :reset :traj :debt :roots :save :load :taxonomy     ║
+║            :help :quit                                                          ║
+╚═════════════════════════════════════════════════════════════════════════════════╝
 """)
 
 
@@ -50,25 +50,25 @@ def print_help():
 ║  PITOMADOM REPL — Commands (v1.0)                                ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║  :stats     - Show oracle statistics (step, debt, params, etc.)  ║
-║  :chambers  - Show 8D chamber activations (2-line display) 🆕    ║
+║  :chambers  - Show 8D chamber activations (2-line display) 🆕     ║
 ║  :reset     - Reset oracle state (new conversation)              ║
 ║  :traj      - Show N-trajectory (last 10 values)                 ║
 ║  :debt      - Show prophecy debt breakdown                       ║
 ║  :roots     - Show active root attractors                        ║
-║  :taxonomy  - Show root family info (if available) 🆕            ║
-║  :save      - Save temporal state to file 🆕                     ║
-║  :load      - Load temporal state from file 🆕                   ║
+║  :taxonomy  - Show root family info (if available) 🆕             ║
+║  :save      - Save temporal state to file 🆕                      ║
+║  :load      - Load temporal state from file 🆕                    ║
 ║  :full      - Toggle full/compact output mode                    ║
 ║  :help      - Show this help                                     ║
 ║  :quit      - Exit (also: :exit, :q, Ctrl+C)                     ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║  Input any Hebrew text to query the oracle.                      ║
 ║  Examples:                                                        ║
-║    שלום                                                          ║
-║    אני מפחד אבל רוצה להמשיך                                       ║
-║    האור נשבר בחושך                                                ║
-║    חכמה היא אור (activates WISDOM chamber) 🆕                    ║
-║    תוהו ובוהו (activates CHAOS chamber) 🆕                       ║
+║    שלום                                                           ║
+║    אני מפחד אבל רוצה להמשיך                                        ║
+║    האור נשבר בחושך                                                 ║
+║    חכמה היא אור (activates WISDOM chamber) 🆕                     ║
+║    תוהו ובוהו (activates CHAOS chamber) 🆕                        ║
 ╚══════════════════════════════════════════════════════════════════╝
 """)
 
@@ -111,21 +111,21 @@ def format_stats(oracle):
     try:
         if hasattr(oracle, 'param_count'):
             param_count = oracle.param_count()
-    except:
+    except (AttributeError, TypeError):
         param_count = "~1M"
     
     return f"""
 ╔══════════════════════════════════════════════════════════════════╗
 ║  PITOMADOM Statistics (v1.0)                                     ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  Parameters:       {str(param_count):<10} (1M target 🔥)                      ║
-║  Step:             {stats['step']:<10}                                    ║
-║  Prophecy Debt:    {stats['prophecy_debt']:<10.2f}                                ║
-║  Unique Roots:     {stats['unique_roots']:<10}                                    ║
-║  Trajectory Len:   {stats['trajectory_length']:<10}                                    ║
-║  Fulfillment Rate: {stats['fulfillment_rate']:<10.3f}                                ║
-║  Orbital Count:    {stats['orbital_count']:<10}                                    ║
-║  Resonance Pairs:  {stats['resonance_pairs']:<10}                                    ║
+║  Parameters:       {str(param_count):<45} ║
+║  Step:             {stats['step']:<45} ║
+║  Prophecy Debt:    {stats['prophecy_debt']:<45.2f} ║
+║  Unique Roots:     {stats['unique_roots']:<45} ║
+║  Trajectory Len:   {stats['trajectory_length']:<45} ║
+║  Fulfillment Rate: {stats['fulfillment_rate']:<45.3f} ║
+║  Orbital Count:    {stats['orbital_count']:<45} ║
+║  Resonance Pairs:  {stats['resonance_pairs']:<45} ║
 ╚══════════════════════════════════════════════════════════════════╝"""
 
 
@@ -137,7 +137,7 @@ def format_debt(oracle):
         "╔══════════════════════════════════════════════════════════════════╗",
         "║  Prophecy Debt Breakdown                                         ║",
         "╠══════════════════════════════════════════════════════════════════╣",
-        f"║  Current Debt:     {pf.prophecy_debt:<10.2f}                                ║",
+        f"║  Current Debt:     {pf.prophecy_debt:<44.2f} ║",
     ]
     
     # Last few prophecies
@@ -145,14 +145,14 @@ def format_debt(oracle):
     if prophecies:
         lines.append("║  Recent Prophecies:                                              ║")
         for step, n_prop in prophecies:
-            lines.append(f"║    Step {step}: N_prophecy = {n_prop:<6}                                ║")
+            lines.append(f"║    Step {step}: N_prophecy = {n_prop:<40} ║")
     
     # Fulfillments
     fulfillments = list(oracle.prophecy_engine.fulfillments.items())[-5:]
     if fulfillments:
         lines.append("║  Recent Fulfillments:                                            ║")
         for step, n_actual in fulfillments:
-            lines.append(f"║    Step {step}: N_actual = {n_actual:<6}                                  ║")
+            lines.append(f"║    Step {step}: N_actual = {n_actual:<42} ║")
     
     lines.append("╚══════════════════════════════════════════════════════════════════╝")
     return '\n'.join(lines)
@@ -226,21 +226,23 @@ def format_taxonomy(root_str):
         polarity = taxonomy.get_family_polarity(root)
         related = taxonomy.get_related_roots(root)
         
+        polarity_str = 'positive' if polarity > 0 else 'negative' if polarity < 0 else 'neutral'
+        
         lines = [
             "",
             "╔══════════════════════════════════════════════════════════════════╗",
-            f"║  Root Taxonomy: {root_str}                                            ║",
+            f"║  Root Taxonomy: {root_str:<49} ║",
             "╠══════════════════════════════════════════════════════════════════╣",
-            f"║  Family:      {family:<50} ║",
-            f"║  Polarity:    {polarity:+.1f} ({'positive' if polarity > 0 else 'negative' if polarity < 0 else 'neutral'})                                         ║",
-            f"║  Description: {family_info.description[:45]:<45} ║",
+            f"║  Family:      {family:<52} ║",
+            f"║  Polarity:    {polarity:+.1f} ({polarity_str})                                   ║",
+            f"║  Description: {family_info.description[:47]:<47} ║",
         ]
         
         if related:
             lines.append("║  Related roots:                                                  ║")
             for r in related[:3]:
                 r_str = '.'.join(r)
-                lines.append(f"║    {r_str:<60} ║")
+                lines.append(f"║    {r_str:<62} ║")
         
         lines.append("╚══════════════════════════════════════════════════════════════════╝")
         return '\n'.join(lines)
@@ -267,7 +269,7 @@ def format_roots(oracle):
         for root, count in sorted_roots:
             root_str = '.'.join(root)
             bar = '█' * min(count * 2, 20)
-            lines.append(f"║  {root_str:<8} [{count:>3}] {bar:<20}                    ║")
+            lines.append(f"║  {root_str:<8} [{count:>3}] {bar:<30} ║")
     
     lines.append("╚══════════════════════════════════════════════════════════════════╝")
     return '\n'.join(lines)

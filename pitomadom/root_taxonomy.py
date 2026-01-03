@@ -38,11 +38,9 @@ class RootTaxonomy:
                 name='movement',
                 roots=[
                     ('ה', 'ל', 'ך'),  # walk
-                    ('ב', 'ו', 'א'),  # come
                     ('י', 'צ', 'א'),  # exit
                     ('ע', 'ל', 'ה'),  # ascend
                     ('י', 'ר', 'ד'),  # descend
-                    ('ש', 'ו', 'ב'),  # return
                     ('נ', 'ו', 'ס'),  # flee
                     ('ר', 'ו', 'ץ'),  # run
                 ],
@@ -106,7 +104,6 @@ class RootTaxonomy:
                 roots=[
                     ('י', 'ד', 'ע'),  # know
                     ('ח', 'כ', 'ם'),  # wisdom
-                    ('ב', 'י', 'ן'),  # understand
                     ('ש', 'כ', 'ל'),  # intellect
                     ('ל', 'מ', 'ד'),  # learn
                     ('ה', 'ב', 'ן'),  # comprehend

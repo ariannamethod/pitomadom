@@ -1,13 +1,15 @@
 """
 Chamber Metrics — Emotional Physics
 
-Each input is mapped into a 6-dimensional feeling field:
+Each input is mapped into an 8-dimensional feeling field:
 - FEAR
 - LOVE  
 - RAGE
 - VOID
 - FLOW
 - COMPLEX
+- WISDOM
+- CHAOS
 
 These are not "emotions for drama". They are FORCES.
 They bend which roots become active, how strongly numbers attract,

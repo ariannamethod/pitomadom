@@ -51,7 +51,7 @@ class MetaObserver:
     - risk_score: danger level
     - destiny_shift: adjustment to target N
     
-    NEW in v1.0: Scaled up to 3-layer network (~150K params)
+    NEW in v1.0: Scaled up to 4-layer network (~206K params)
     """
     
     def __init__(
@@ -70,7 +70,7 @@ class MetaObserver:
         - Hidden3: 128
         - Output: 4 (collapse_prob, recursion_pressure, risk_score, destiny_shift)
         
-        Total params: ~270K (bringing total to ~810K)
+        Total params: ~206K (80×512 + 512×256 + 256×128 + 128×4)
         """
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
