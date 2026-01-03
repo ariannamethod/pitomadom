@@ -95,6 +95,10 @@ from .rtl_attention import (  # NEW v1.1: Bidirectional Hebrew Transformer
     BidirectionalAttention,
     RTLPositionalEncoding,
     RTLOutput,
+    DissonanceGate,  # v1.2: Dissonance-Gated Reasoning Skips
+    SparseWaypointAttention,  # v1.2: O(L×k) sparse attention
+    WaypointInfo,
+    SkipMetrics,
 )
 from .cosmic import (  # NEW v1.1: Full Integration + Multi-step Prediction
     CosmicPitomadom,
@@ -158,6 +162,14 @@ from .real_data import (  # NEW v1.2: REAL Astronomical/Physical Data
     RealDataHub,
     SchumannMeasurement,
     LunarPhaseData,
+)
+from .statistics import (  # NEW v1.2: Surrogate Tests & FDR Correction
+    SurrogateTest,
+    SurrogateMethod,
+    SurrogateResult,
+    FDRCorrection,
+    FDRResult,
+    test_multiple_hypotheses,
 )
 
 __all__ = [
@@ -231,6 +243,10 @@ __all__ = [
     "BidirectionalAttention",
     "RTLPositionalEncoding",
     "RTLOutput",
+    "DissonanceGate",
+    "SparseWaypointAttention",
+    "WaypointInfo",
+    "SkipMetrics",
     # Cosmic Integration (v1.1) + Multi-step Prediction
     "CosmicPitomadom",
     "CosmicOutput",
@@ -285,4 +301,11 @@ __all__ = [
     "RealDataHub",
     "SchumannMeasurement",
     "LunarPhaseData",
+    # Statistics (v1.2) - Surrogate Tests & FDR
+    "SurrogateTest",
+    "SurrogateMethod",
+    "SurrogateResult",
+    "FDRCorrection",
+    "FDRResult",
+    "test_multiple_hypotheses",
 ]

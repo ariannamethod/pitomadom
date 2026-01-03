@@ -54,9 +54,13 @@ Metrics (all length-invariant):
 """
 
 import numpy as np
-from typing import Dict, Optional, Tuple, List
+from typing import Optional, Tuple, List
 from dataclasses import dataclass
 from datetime import date
+
+
+# Shared epsilon for numerical stability (avoid defining inside conditionals)
+EPS = 1e-8
 
 
 @dataclass
@@ -151,8 +155,9 @@ class DissonanceGate:
 
     DEFINITION:
     - Dissonance: Measurable divergence between forward and backward reasoning paths.
-      Computed as: dissonance = calendar_dissonance + kl_divergence + constraint_violations
-      Where calendar_dissonance comes from Hebrew↔Gregorian drift.
+      Computed as weighted average:
+        dissonance = 0.5 × calendar_dissonance + 0.3 × JSD_norm + 0.2 × |ΔH_norm|
+      Where calendar_dissonance comes from Hebrew↔Gregorian incommensurability tension.
 
     - Skip (Jump): Selection of a waypoint/anchor and compression of intermediate steps.
       When dissonance is high, attention can "tunnel" past intermediate tokens.
@@ -163,7 +168,7 @@ class DissonanceGate:
     MECHANISM:
     - High dissonance (>0.7) → distance_penalty reduced → allow far jumps
     - Low dissonance (<0.3) → distance_penalty increased → force local attention
-    - Waypoints selected by attention mass: top-k tokens become anchor points
+    - Waypoints selected by cumulative attention mass (length-invariant)
 
     Technical alias: "TimeTravel" (for documentation/fun)
     Formal name: "Dissonance-Gated Reasoning Skips"
@@ -230,22 +235,22 @@ class DissonanceGate:
         # JSD(p,q) = 0.5 * KL(p||m) + 0.5 * KL(q||m), where m = (p+q)/2
         # JSD ∈ [0, ln(2)] → normalize by ln(2)
         jsd_component = 0.0
+        entropy_component = 0.0
+
         if forward_probs is not None and backward_probs is not None:
-            eps = 1e-8
+            # JSD computation
             m = 0.5 * (forward_probs + backward_probs)
-            kl_pm = np.sum(forward_probs * np.log((forward_probs + eps) / (m + eps)))
-            kl_qm = np.sum(backward_probs * np.log((backward_probs + eps) / (m + eps)))
+            kl_pm = np.sum(forward_probs * np.log((forward_probs + EPS) / (m + EPS)))
+            kl_qm = np.sum(backward_probs * np.log((backward_probs + EPS) / (m + EPS)))
             jsd = 0.5 * kl_pm + 0.5 * kl_qm
             jsd_component = np.clip(jsd / np.log(2), 0, 1)  # Normalize by ln(2)
 
-        # 3. Normalized entropy difference
-        # H_norm(p) = H(p) / ln(|support|) ∈ [0, 1]
-        entropy_component = 0.0
-        if forward_probs is not None and backward_probs is not None:
+            # 3. Normalized entropy difference
+            # H_norm(p) = H(p) / ln(|support|) ∈ [0, 1]
             seq_len = len(forward_probs)
-            max_entropy = np.log(seq_len + eps)  # ln(|V|), here V = seq_len
-            h_fwd = -np.sum(forward_probs * np.log(forward_probs + eps))
-            h_bwd = -np.sum(backward_probs * np.log(backward_probs + eps))
+            max_entropy = np.log(max(seq_len, 2))  # ln(|V|), min 2 to avoid log(1)=0
+            h_fwd = -np.sum(forward_probs * np.log(forward_probs + EPS))
+            h_bwd = -np.sum(backward_probs * np.log(backward_probs + EPS))
             h_fwd_norm = h_fwd / max_entropy
             h_bwd_norm = h_bwd / max_entropy
             entropy_component = np.clip(abs(h_fwd_norm - h_bwd_norm), 0, 1)
@@ -303,7 +308,7 @@ class DissonanceGate:
 
         Uses CUMULATIVE MASS approach (length-invariant):
         - Select minimum set S such that Σ_{i∈S} mass[i] ≥ threshold
-        - Mark as anchor if dissonance > 0.5 and mass is in top percentile
+        - Mark as anchor if dissonance > 0.5 and mass is in top 20% (80th percentile)
 
         This is more robust than absolute threshold which depends on seq_len.
 
@@ -315,11 +320,9 @@ class DissonanceGate:
         Returns:
             List of WaypointInfo for selected anchors
         """
-        seq_len = attention_weights.shape[0]
-
         # Compute attention mass for each position (sum of incoming attention)
         attention_mass = attention_weights.sum(axis=0)
-        attention_mass = attention_mass / (attention_mass.sum() + 1e-8)
+        attention_mass = attention_mass / (attention_mass.sum() + EPS)
 
         # Sort by mass descending
         sorted_indices = np.argsort(attention_mass)[::-1]
@@ -330,21 +333,23 @@ class DissonanceGate:
         anchor_threshold_percentile = np.percentile(attention_mass, 80)  # Top 20%
 
         for idx in sorted_indices:
-            if cumulative_mass >= cumulative_mass_threshold:
-                break
             if len(waypoints) >= self.max_waypoints:
                 break
 
             mass = attention_mass[idx]
             cumulative_mass += mass
 
-            # Is anchor if dissonance high AND mass in top percentile
+            # Is anchor if dissonance high AND mass in top 20% (80th percentile)
             is_anchor = dissonance > 0.5 and mass >= anchor_threshold_percentile
             waypoints.append(WaypointInfo(
-                    index=int(idx),
-                    attention_mass=float(mass),
-                    is_anchor=is_anchor
-                ))
+                index=int(idx),
+                attention_mass=float(mass),
+                is_anchor=is_anchor
+            ))
+
+            # Check threshold AFTER adding current waypoint
+            if cumulative_mass >= cumulative_mass_threshold:
+                break
 
         return waypoints
 
@@ -362,7 +367,7 @@ class DissonanceGate:
         Metrics (all length-invariant):
         1. skip_ratio: Fraction of positions between anchors
         2. boundary_violations: FRACTION (not count) of under-attended positions
-        3. agreement_score: Forward/backward correlation (1 - normalized JSD)
+        3. agreement_score: Forward/backward correlation, mapped from [-1,1] to [0,1]
         4. quality_delta: Dissonance × agreement (justified skip potential)
         5. non_locality_index: Mean attention distance / (L-1)
         """
@@ -390,8 +395,8 @@ class DissonanceGate:
         violations_count = np.sum(attention_per_pos < threshold)
         boundary_violations = violations_count / seq_len  # Return as fraction
 
-        # 3. Agreement score: correlation between forward and backward
-        # Also compute JSD for more robust comparison
+        # 3. Agreement score: Pearson correlation between forward and backward
+        # Normalized from [-1, 1] to [0, 1] for consistent interpretation
         agreement = np.corrcoef(forward_weights.flatten(), backward_weights.flatten())[0, 1]
         if np.isnan(agreement):
             agreement = 0.0
@@ -529,6 +534,117 @@ class BidirectionalAttention:
         return 4 * self.dim * self.dim + self.num_heads
 
 
+class SparseWaypointAttention:
+    """
+    Sparse attention that attends ONLY to waypoints.
+
+    REAL COMPUTE SAVINGS: O(L × k) instead of O(L²), where k = number of waypoints.
+
+    Two-phase approach:
+    1. First pass: identify waypoints using full attention (can be cached/amortized)
+    2. Second pass: attend only to waypoints
+
+    This is useful when:
+    - Waypoints are stable (don't change every forward pass)
+    - Sequence is long (L >> k)
+    - Dissonance is high (many intermediate steps can be skipped)
+    """
+
+    def __init__(self, dim: int, num_heads: int = 4, seed: int = 42):
+        self.dim = dim
+        self.num_heads = num_heads
+        self.head_dim = dim // num_heads
+
+        rng = np.random.RandomState(seed)
+        scale = np.sqrt(2.0 / dim)
+
+        # Q, K, V projections (shared with dense attention if needed)
+        self.W_q = rng.randn(dim, dim) * scale
+        self.W_k = rng.randn(dim, dim) * scale
+        self.W_v = rng.randn(dim, dim) * scale
+        self.W_o = rng.randn(dim, dim) * scale
+
+    def forward(
+        self,
+        x: np.ndarray,
+        waypoint_indices: List[int],
+        return_weights: bool = False
+    ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+        """
+        Sparse attention to waypoints only.
+
+        Complexity: O(L × k) where L = seq_len, k = len(waypoint_indices)
+
+        Args:
+            x: Input of shape (seq_len, dim)
+            waypoint_indices: List of waypoint positions to attend to
+            return_weights: If True, return sparse attention weights
+
+        Returns:
+            (output, attention_weights) or just output
+        """
+        seq_len = x.shape[0]
+        k = len(waypoint_indices)
+
+        if k == 0:
+            # No waypoints - return zeros
+            return np.zeros_like(x), None
+
+        # Project all queries, but only waypoint keys and values
+        Q = x @ self.W_q  # (seq_len, dim)
+        K_waypoints = x[waypoint_indices] @ self.W_k  # (k, dim)
+        V_waypoints = x[waypoint_indices] @ self.W_v  # (k, dim)
+
+        # Reshape for multi-head attention
+        Q = Q.reshape(seq_len, self.num_heads, self.head_dim)
+        K_waypoints = K_waypoints.reshape(k, self.num_heads, self.head_dim)
+        V_waypoints = V_waypoints.reshape(k, self.num_heads, self.head_dim)
+
+        # Compute sparse attention scores: (seq_len, num_heads, k)
+        # This is O(L × k × d) instead of O(L² × d)
+        scores = np.einsum('ihd,jhd->hij', Q, K_waypoints) / np.sqrt(self.head_dim)
+
+        # Softmax over waypoints only
+        attention = np.exp(scores - scores.max(axis=-1, keepdims=True))
+        attention = attention / (attention.sum(axis=-1, keepdims=True) + EPS)
+
+        # Apply attention to waypoint values: O(L × k × d)
+        attended = np.einsum('hij,jhd->ihd', attention, V_waypoints)
+
+        # Reshape and project output
+        attended = attended.reshape(seq_len, self.dim)
+        output = attended @ self.W_o
+
+        if return_weights:
+            # Return sparse attention matrix (seq_len, k) averaged over heads
+            avg_attention = attention.mean(axis=1)
+            return output, avg_attention
+
+        return output, None
+
+    def compute_savings(self, seq_len: int, num_waypoints: int) -> float:
+        """
+        Compute actual FLOPs savings compared to dense attention.
+
+        Dense attention: O(L² × d)
+        Sparse waypoint: O(L × k × d)
+
+        Returns: fraction of compute saved (0.0 to 1.0)
+        """
+        if seq_len <= 1:
+            return 0.0
+
+        dense_ops = seq_len * seq_len
+        sparse_ops = seq_len * num_waypoints
+
+        savings = 1.0 - (sparse_ops / dense_ops)
+        return max(0.0, savings)
+
+    @property
+    def param_count(self) -> int:
+        return 4 * self.dim * self.dim
+
+
 class TemporalSymmetryHead:
     """
     Combines forward (future-focused) and backward (past-focused) attention
@@ -611,6 +727,8 @@ class TemporalSymmetryHead:
             mix_alpha = 0.5  # Symmetric
 
         # Compute dissonance if not provided
+        # NOTE: At this level we use only calendar-based dissonance.
+        # JSD/entropy components require attention probs which aren't available yet.
         if dissonance is None:
             dissonance = self.dissonance_gate.compute_dissonance(current_date)
 
@@ -661,7 +779,7 @@ class TemporalSymmetryHead:
         else:
             asymmetry = 0.0
             combined_weights = np.zeros((x.shape[0], x.shape[0]))
-            waypoints = []
+            waypoints = None  # Consistent with RTLOutput default
             skip_metrics = SkipMetrics(0.0, 0.0, 0.0, 0.0, 0.0)
 
         return RTLOutput(
@@ -862,6 +980,8 @@ class RTLAttention:
             RTLOutput from final layer with waypoints and skip metrics
         """
         # Compute dissonance once for all layers
+        # NOTE: At stack level we use only calendar-based dissonance.
+        # JSD/entropy components are computed per-layer using attention probs.
         if dissonance is None:
             dissonance = self.dissonance_gate.compute_dissonance(current_date)
 
@@ -968,6 +1088,31 @@ if __name__ == "__main__":
     print(f"RTL[0] == LTR[4]: {np.allclose(rtl_pos[0], ltr_pos[4])}")
     print()
 
+    # Test sparse waypoint attention
+    print("=" * 40)
+    print("  SPARSE WAYPOINT ATTENTION")
+    print("=" * 40)
+    sparse_attn = SparseWaypointAttention(dim=64, num_heads=4, seed=42)
+
+    # Use first run's waypoints as indices
+    waypoint_indices = [wp.index for wp in (tt_output.waypoints or [])]
+    print(f"Waypoint indices: {waypoint_indices}")
+
+    if waypoint_indices:
+        sparse_out, sparse_weights = sparse_attn.forward(x, waypoint_indices, return_weights=True)
+        print(f"Sparse output shape: {sparse_out.shape}")
+        print(f"Sparse weights shape: {sparse_weights.shape if sparse_weights is not None else 'None'}")
+
+        # Compute savings
+        savings = sparse_attn.compute_savings(seq_len=5, num_waypoints=len(waypoint_indices))
+        print(f"Compute savings: {savings:.1%} (L={5}, k={len(waypoint_indices)})")
+
+        # For larger sequence, savings would be more dramatic
+        savings_large = sparse_attn.compute_savings(seq_len=512, num_waypoints=len(waypoint_indices))
+        print(f"At L=512, k={len(waypoint_indices)}: {savings_large:.1%} savings")
+    print()
+
     print("=" * 70)
     print("  ✓ RTL Attention with Dissonance Gating operational!")
+    print("  ✓ Sparse Waypoint Attention available for real compute savings!")
     print("=" * 70)
