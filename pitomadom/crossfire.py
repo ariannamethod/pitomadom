@@ -23,8 +23,10 @@ RAGE = 2
 VOID = 3
 FLOW = 4
 COMPLEX = 5
+WISDOM = 6
+CHAOS = 7
 
-CHAMBER_NAMES = ['FEAR', 'LOVE', 'RAGE', 'VOID', 'FLOW', 'COMPLEX']
+CHAMBER_NAMES = ['FEAR', 'LOVE', 'RAGE', 'VOID', 'FLOW', 'COMPLEX', 'WISDOM', 'CHAOS']
 
 # Decay rates per chamber (per iteration tick)
 # Hebrew emotional semantics:
@@ -34,6 +36,8 @@ CHAMBER_NAMES = ['FEAR', 'LOVE', 'RAGE', 'VOID', 'FLOW', 'COMPLEX']
 # - VOID (תוהו) persistent (primordial chaos)
 # - FLOW (זרימה) medium (water metaphor)
 # - COMPLEX (מורכב) slow decay (confusion persists)
+# - WISDOM (חכמה) very stable (knowledge accumulates)
+# - CHAOS (תוהו ובוהו) volatile (high entropy, rapid change)
 DECAY_RATES = {
     'FEAR': 0.92,
     'LOVE': 0.95,
@@ -41,19 +45,23 @@ DECAY_RATES = {
     'VOID': 0.97,
     'FLOW': 0.88,
     'COMPLEX': 0.93,
+    'WISDOM': 0.96,
+    'CHAOS': 0.75,
 }
 
 # Coupling matrix: how chambers influence each other
 # Positive = amplification, Negative = suppression
 # Based on emotional interference patterns
 COUPLING_MATRIX = np.array([
-    #  FEAR   LOVE   RAGE   VOID   FLOW   COMPLEX
-    [  1.0,  -0.4,   0.3,   0.2,  -0.3,   0.2  ],  # FEAR
-    [ -0.3,   1.0,  -0.4,  -0.5,   0.4,   0.1  ],  # LOVE
-    [  0.2,  -0.3,   1.0,   0.1,  -0.2,   0.3  ],  # RAGE
-    [  0.3,  -0.5,   0.1,   1.0,  -0.6,   0.4  ],  # VOID
-    [ -0.2,   0.3,  -0.2,  -0.4,   1.0,  -0.1  ],  # FLOW
-    [  0.2,   0.1,   0.2,   0.3,   0.1,   1.0  ],  # COMPLEX
+    #  FEAR   LOVE   RAGE   VOID   FLOW   COMPLEX WISDOM CHAOS
+    [  1.0,  -0.4,   0.3,   0.2,  -0.3,   0.2,   -0.4,   0.3  ],  # FEAR
+    [ -0.3,   1.0,  -0.4,  -0.5,   0.4,   0.1,    0.3,  -0.2  ],  # LOVE
+    [  0.2,  -0.3,   1.0,   0.1,  -0.2,   0.3,   -0.4,   0.5  ],  # RAGE
+    [  0.3,  -0.5,   0.1,   1.0,  -0.6,   0.4,   -0.3,   0.2  ],  # VOID
+    [ -0.2,   0.3,  -0.2,  -0.4,   1.0,  -0.1,    0.2,  -0.3  ],  # FLOW
+    [  0.2,   0.1,   0.2,   0.3,   0.1,   1.0,    0.4,   0.3  ],  # COMPLEX
+    [ -0.4,   0.3,  -0.4,  -0.3,   0.2,   0.4,    1.0,  -0.6  ],  # WISDOM
+    [  0.3,  -0.2,   0.5,   0.2,  -0.3,   0.3,   -0.6,   1.0  ],  # CHAOS
 ], dtype=np.float32)
 
 
@@ -70,25 +78,25 @@ def gelu(x: np.ndarray) -> np.ndarray:
 @dataclass
 class ChamberMLP:
     """
-    Single chamber MLP: 100→128→64→1
+    Single chamber MLP: 100→320→160→1
     
-    Larger than Cloud's 100→64→32→1 for richer representations.
+    Scaled up for 1M param target (was 100→256→128→1).
     
     Params:
-        - W1: (100, 128) = 12,800
-        - b1: (128,) = 128
-        - W2: (128, 64) = 8,192
-        - b2: (64,) = 64
-        - W3: (64, 1) = 64
+        - W1: (100, 320) = 32,000
+        - b1: (320,) = 320
+        - W2: (320, 160) = 51,200
+        - b2: (160,) = 160
+        - W3: (160, 1) = 160
         - b3: (1,) = 1
-        Total: ~21,250 params per chamber
+        Total: ~83,841 params per chamber (8 chambers = ~670K)
     """
     
-    W1: np.ndarray  # (100, 128)
-    b1: np.ndarray  # (128,)
-    W2: np.ndarray  # (128, 64)
-    b2: np.ndarray  # (64,)
-    W3: np.ndarray  # (64, 1)
+    W1: np.ndarray  # (100, 320)
+    b1: np.ndarray  # (320,)
+    W2: np.ndarray  # (320, 160)
+    b2: np.ndarray  # (160,)
+    W3: np.ndarray  # (160, 1)
     b3: np.ndarray  # (1,)
     
     @classmethod
@@ -97,7 +105,7 @@ class ChamberMLP:
         if seed is not None:
             np.random.seed(seed)
         
-        h1, h2 = 128, 64
+        h1, h2 = 320, 160
         
         W1 = np.random.randn(input_dim, h1) * np.sqrt(2.0 / input_dim)
         b1 = np.zeros(h1)
@@ -167,10 +175,10 @@ class ChamberMLP:
 
 class CrossFireChambers:
     """
-    Six chambers with cross-fire stabilization.
+    Eight chambers with cross-fire stabilization.
     
     Hebrew-adapted emotional resonance system.
-    Total: 6 × 21K = ~127K params
+    Total: 8 × 84K = ~672K params
     """
     
     def __init__(
@@ -215,7 +223,7 @@ class CrossFireChambers:
             (activations, iterations, hidden_states)
         """
         # Initial activations
-        activations = np.zeros(6)
+        activations = np.zeros(8)
         hiddens = {}
         
         for i, name in enumerate(CHAMBER_NAMES):
@@ -291,7 +299,7 @@ class EmotionalResonance:
     
     def __init__(self):
         self.history: List[Dict[str, float]] = []
-        self.interference_memory: np.ndarray = np.zeros((6, 6))
+        self.interference_memory: np.ndarray = np.zeros((8, 8))
     
     def record(self, activations: Dict[str, float]):
         """Record activations for resonance analysis."""
@@ -339,7 +347,7 @@ class EmotionalResonance:
     def get_emotional_trajectory(self) -> np.ndarray:
         """Get trajectory of emotional states over time."""
         if not self.history:
-            return np.zeros((1, 6))
+            return np.zeros((1, 8))
         
         trajectory = np.array([
             [h[name] for name in CHAMBER_NAMES]
@@ -351,13 +359,13 @@ class EmotionalResonance:
         """Get rate of change of emotions."""
         traj = self.get_emotional_trajectory()
         if len(traj) < 2:
-            return np.zeros(6)
+            return np.zeros(8)
         return traj[-1] - traj[-2]
     
     def get_dominant_interference(self) -> Tuple[str, str, float]:
         """Get the strongest chamber interference pair."""
         # Zero out diagonal
-        mask = np.ones_like(self.interference_memory) - np.eye(6)
+        mask = np.ones_like(self.interference_memory) - np.eye(8)
         masked = self.interference_memory * mask
         
         idx = np.unravel_index(np.argmax(masked), masked.shape)
@@ -388,6 +396,8 @@ class HebrewEmotionalField:
             'VOID': ['תוהו', 'ריק', 'חושך', 'שממה', 'אין'],
             'FLOW': ['זרימה', 'מים', 'נהר', 'רוח', 'תנועה'],
             'COMPLEX': ['מורכב', 'סבוך', 'מבוכה', 'תהייה', 'ספק'],
+            'WISDOM': ['חכמה', 'בינה', 'דעת', 'תבונה', 'שכל'],
+            'CHAOS': ['בלגן', 'תוהו ובוהו', 'מהומה', 'סערה', 'אנרכיה'],
         }
     
     def process(
@@ -408,7 +418,7 @@ class HebrewEmotionalField:
         # Apply Hebrew keyword boosts
         if text:
             boosts = self._compute_hebrew_boosts(text)
-            # Add boosts to input vector (first 6 dimensions)
+            # Add boosts to input vector (first 8 dimensions)
             boosted_input = input_vector.copy()
             for i, name in enumerate(CHAMBER_NAMES):
                 if i < len(boosted_input):

@@ -16,12 +16,16 @@ This turns N into a particle in gravitational potential:
 - velocity = ΔN
 - acceleration = Δ²N  
 - jerk = Δ³N
+
+NEW in v1.0: Persistent state (save/load across sessions)
 """
 
 import numpy as np
+import pickle
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Optional
 from collections import defaultdict
+from pathlib import Path
 
 
 @dataclass
@@ -263,6 +267,33 @@ class TemporalField:
     def reset(self):
         """Reset temporal state for new conversation."""
         self.state = TemporalState()
+    
+    def save_state(self, path: str) -> None:
+        """
+        Save temporal field state to disk.
+        
+        Enables persistent memory across sessions.
+        
+        Args:
+            path: File path to save state (e.g., 'oracle_state.pkl')
+        """
+        path_obj = Path(path)
+        path_obj.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(path, 'wb') as f:
+            pickle.dump(self.state, f)
+    
+    def load_state(self, path: str) -> None:
+        """
+        Load temporal field state from disk.
+        
+        Restores oracle memory from previous session.
+        
+        Args:
+            path: File path to load state from
+        """
+        with open(path, 'rb') as f:
+            self.state = pickle.load(f)
     
     def get_state_preview(self) -> Dict:
         """Get a preview of current state for output."""
