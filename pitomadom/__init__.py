@@ -64,6 +64,13 @@ from .root_attention import (  # NEW v1.1: Root→Root Attention
     HybridRootAttention,
     AttentionOutput,
 )
+from .circalunar_clock import (  # NEW v1.1: Planetary Rhythms
+    LunarModulation,
+    SchumannResonance,
+    CircalunarClock,
+    LunarState,
+    CircalunarState,
+)
 
 __all__ = [
     # Gematria
@@ -109,4 +116,10 @@ __all__ = [
     "ResonanceHead",
     "HybridRootAttention",
     "AttentionOutput",
+    # Circalunar Clock (v1.1) - Planetary Rhythms
+    "LunarModulation",
+    "SchumannResonance",
+    "CircalunarClock",
+    "LunarState",
+    "CircalunarState",
 ]
