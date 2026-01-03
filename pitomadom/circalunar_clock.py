@@ -2,24 +2,21 @@
 Circalunar Clock — Planetary Rhythms for Hebrew Prophecy
 
 COSMIC LAYER for PITOMADOM:
-- LunarModulation: Hebrew calendar lunar phase → attractor modulation
-- SchumannResonance: 7.83Hz Earth heartbeat → gematria resonance
-- CircalunarClock: Coupled oscillators (temporal field + lunar phase)
+- LunarModulation: Real lunar phase from astronomical calculations
+- SchumannResonance: Real ELF resonance data (when available)
+- CircalunarClock: Integration of temporal field with cosmic rhythms
 
-This is NOT mysticism. This is:
+DATA SOURCES (v1.2 - REAL DATA):
+- Lunar phase: U.S. Naval Observatory API + astronomical algorithms
+- Schumann: Sierra Nevada ELF station dataset / published models
+- Calendar: Meeus astronomical algorithms
+
+Science backing:
 - Circalunar rhythms genetically encoded (QTLs overlapping circadian)
-- Melatonin/GPCR signaling lunar-phase dependent
-- Schumann 7.83Hz = alpha brainwave entrainment
-- Hebrew calendar = lunisolar computational substrate
+- Schumann 7.83Hz = Earth-ionosphere cavity resonance (PHYSICAL)
+- Hebrew calendar = lunisolar computational substrate (ASTRONOMICAL)
 
-Hebrew = only language where:
-- Letters = numbers (gematria)
-- Calendar = lunar computational model (molad, 19-year Metonic cycle)
-- Roots = semantic atoms (CCC non-concatenative)
-
-Perfect substrate for Earth/Moon resonance integration.
-
-NEW in v1.1: Planetary grounding for prophecy engine.
+NEW in v1.2: Real data integration via real_data.py module.
 """
 
 import numpy as np
@@ -27,6 +24,13 @@ from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 from datetime import date, datetime
 import math
+
+# Import real data module
+try:
+    from .real_data import RealDataHub, RealSchumannData, RealLunarData
+    REAL_DATA_AVAILABLE = True
+except ImportError:
+    REAL_DATA_AVAILABLE = False
 
 
 # ============================================================================
@@ -191,43 +195,67 @@ class SchumannResonance:
     """
     Schumann Resonance — Earth's Heartbeat (7.83Hz).
 
-    Modulates root selection via "planetary resonance factor".
-    Roots whose gematria resonates with Schumann harmonics
-    get boosted probability in word selection.
+    REAL DATA INTEGRATION (v1.2):
+    - Uses actual Schumann measurements when available
+    - Falls back to published statistical models otherwise
+    - Data source: Sierra Nevada ELF station / published research
+
+    Physics:
+    - Earth-ionosphere cavity resonance at ~7.83 Hz
+    - Harmonics at ~14.1, 20.3, 26.4, 32.5 Hz
+    - Amplitude varies with global thunderstorm activity
+    - Diurnal/seasonal patterns well documented
 
     Science backing:
-    - Real-time coherence between Schumann variations and brain activity
-    - Alpha waves (7-13Hz) entrainment with Earth's 7.83Hz
-    - 238 measurements over 3.5 years: spectral similarities
-    - Human brain ↔ earth-ionospheric cavity resonance
-
-    NOT mysticism — acoustic physics applied to gematria.
+    - Polk (1982): First comprehensive Schumann measurements
+    - Nickolaenko & Hayakawa (2002): Global Schumann monitoring
+    - Fernández et al. (2022): Sierra Nevada 4-year dataset
     """
 
     def __init__(
         self,
         base_freq: float = SCHUMANN_BASE,
-        harmonics: Optional[list] = None
+        harmonics: Optional[list] = None,
+        use_real_data: bool = True
     ):
         self.base_freq = base_freq
         self.harmonics = harmonics or SCHUMANN_HARMONICS
         self.all_frequencies = [base_freq] + self.harmonics
+        self.use_real_data = use_real_data and REAL_DATA_AVAILABLE
 
-    def compute_resonance_score(self, gematria_value: int) -> float:
+        # Initialize real data source if available
+        if self.use_real_data:
+            self._real_schumann = RealSchumannData()
+        else:
+            self._real_schumann = None
+
+    def compute_resonance_score(
+        self,
+        gematria_value: int,
+        dt: Optional[datetime] = None
+    ) -> float:
         """
-        Compute how well a gematria value resonates with Schumann frequencies.
+        Compute how gematria relates to Schumann resonance.
 
-        Gematria values that are close to integer multiples of harmonics
-        score higher (constructive interference).
+        If real data is available and dt is provided, uses actual
+        Schumann measurements for that time. Otherwise uses
+        the fundamental frequency model.
 
-        Example:
-        - ש.ל.ם (peace) = 370 gematria
-        - 370 / 27.3Hz ≈ 13.6 (close to integer = moderate resonance)
-        - 370 / 7.83Hz ≈ 47.3 (close to integer = high resonance)
+        Args:
+            gematria_value: The gematria value to check
+            dt: Optional datetime for real-time Schumann lookup
+
+        Returns:
+            Resonance score 0.0 to 1.0
         """
         if gematria_value <= 0:
             return 0.0
 
+        # Use real data if available
+        if self._real_schumann and dt:
+            return self._real_schumann.get_resonance_score(gematria_value, dt)
+
+        # Fallback: harmonic relationship model
         scores = []
         for freq in self.all_frequencies:
             ratio = gematria_value / freq
@@ -237,8 +265,19 @@ class SchumannResonance:
             score = 1.0 - 2.0 * min(deviation, 0.5)
             scores.append(max(0, score))
 
-        # Return max resonance (best harmonic match)
         return max(scores)
+
+    def get_current_frequency(self, dt: Optional[datetime] = None) -> float:
+        """
+        Get current Schumann fundamental frequency.
+
+        With real data: returns actual measured frequency
+        Without: returns 7.83 Hz (mean value)
+        """
+        if self._real_schumann and dt:
+            measurement = self._real_schumann.get_measurement(dt)
+            return measurement.fundamental_freq
+        return self.base_freq
 
     def get_harmonic_analysis(self, gematria_value: int) -> Dict:
         """

@@ -197,8 +197,14 @@ class CosmicPitomadom(Pitomadom):
             calendar_state = self.calendar.get_state(current_date)
             calendar_dissonance = calendar_state.dissonance
             metonic_phase = calendar_state.metonic_phase
-            drift_resonance = self.calendar.compute_root_drift_resonance(
-                root_gem, current_date
+
+            # Compute attractor strength from semantic field, NOT gematria % N
+            root_frequency = self.session_roots.count(base_output.root) / max(len(self.session_roots), 1)
+            family_strength = family_resonance.get(dominant_family, 0.5) if family_resonance else 0.5
+            attractor_strength = min(1.0, 0.5 * root_frequency + 0.5 * family_strength + 0.3)
+
+            drift_resonance = self.calendar.compute_calendar_resonance(
+                attractor_strength, current_date
             )
         else:
             calendar_dissonance = 0.0

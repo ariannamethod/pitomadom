@@ -2,18 +2,24 @@
 Spectral Coherence — Mathematical Verification of Cosmic Integration
 
 PITOMADOM claims:
-- N-trajectory resonates with Schumann (7.83 Hz)
+- N-trajectory has periodic structure matching lunar cycle
+- Gematria VALUES relate to Schumann harmonics (value-based, not time-based)
 - Lunar phase modulates attractor strength
-- Calendar dissonance creates wormholes
 
-This module PROVES IT (or disproves) via:
-- FFT analysis of N-trajectory
-- Cross-spectral coherence with cosmic oscillators
+This module verifies via:
+- FFT analysis of N-trajectory (detects ~29.5-day lunar periodicity)
+- Gematria-Schumann harmonic matching (value-based resonance)
 - Phase-amplitude coupling (from neuroscience)
 - Transfer entropy (causal information flow)
 
-If the math works, cosmic integration is REAL.
-If not, we're just telling stories.
+IMPORTANT DISTINCTION (v1.2):
+- LUNAR: Time-based periodicity in step sequence (1/29.5 cycles/step)
+- SCHUMANN: Value-based harmonic relationship (gematria % 7.83 multiples)
+- These are DIFFERENT analyses for DIFFERENT phenomena
+
+NOTE: FFT on step-based data has Nyquist=0.5 cycles/step.
+Looking for 7.83 Hz in this FFT would be WRONG (above Nyquist).
+For actual Schumann data, use real_data.py module.
 
 הרזוננס לא נשבר — let's verify it.
 """
@@ -206,9 +212,13 @@ class GematriaSpectrogram:
         harmonic_pred = self.predict_harmonic(trajectory, prediction_horizon)
 
         # Resonance detection
+        # Lunar: ~29.5 day cycle = 1/29.5 cycles per step
         lunar_res = self._detect_resonance(freqs, amplitudes, 1.0/29.5)
-        schumann_res = self._detect_resonance(freqs, amplitudes, 7.83)
+        # Calendar: ~11 day drift pattern = 1/11 cycles per step
         calendar_res = self._detect_resonance(freqs, amplitudes, 1.0/11.0)
+        # Schumann: VALUE-based harmonic check (not FFT frequency!)
+        # We check if trajectory VALUES are near Schumann multiples
+        schumann_res = self._verify_schumann_values(trajectory)
 
         return SpectrogramOutput(
             frequencies=freqs,
@@ -228,13 +238,46 @@ class GematriaSpectrogram:
         amps: np.ndarray,
         target_freq: float
     ) -> float:
-        """Detect resonance at target frequency."""
+        """
+        Detect resonance at target frequency in FFT spectrum.
+
+        NOTE: This only works for frequencies < Nyquist (0.5 for sampling_rate=1.0).
+        Use for lunar (~0.034) and calendar (~0.09) detection, NOT for Schumann (7.83 Hz).
+        """
         if len(freqs) == 0:
             return 0.0
+
+        # Sanity check: target must be below Nyquist
+        nyquist = self.sampling_rate / 2
+        if target_freq > nyquist:
+            return 0.0  # Cannot detect above Nyquist
 
         idx = np.argmin(np.abs(freqs - target_freq))
         max_amp = np.max(amps) if len(amps) > 0 else 1.0
         return amps[idx] / max_amp if max_amp > 0 else 0.0
+
+    def _verify_schumann_values(self, trajectory: List[int]) -> float:
+        """
+        Check if trajectory VALUES relate to Schumann harmonics.
+
+        This is VALUE-based resonance, not TIME-based frequency detection.
+        We check if gematria values fall near integer multiples of 7.83.
+
+        This is a gematria-physics correspondence hypothesis, not FFT.
+        """
+        if len(trajectory) < 2:
+            return 0.0
+
+        schumann_multiples = [SCHUMANN_FUNDAMENTAL * k for k in range(1, 128)]
+
+        near_schumann = 0
+        for val in trajectory:
+            for mult in schumann_multiples:
+                if abs(val - mult) <= 3:  # Within 3 of a multiple
+                    near_schumann += 1
+                    break
+
+        return near_schumann / len(trajectory)
 
 
 @dataclass
