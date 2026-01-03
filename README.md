@@ -691,6 +691,125 @@ print(f"Chambers: COMPLEX + RAGE (probably)")
 
 ---
 
+## What's New in v1.2 — Dissonance-Gated Reasoning & Scientific Validation
+
+### 1. **RTL Attention with TimeTravel (Dissonance-Gated Reasoning Skips)**
+
+Hebrew reads right-to-left — a temporal paradigm where RIGHT = past, LEFT = future. RTL Attention makes this explicit:
+
+```python
+from pitomadom import RTLAttention, DissonanceGate
+
+# Create RTL attention (bidirectional, not causal)
+rtl = RTLAttention(dim=64, num_layers=2)
+
+# Standard symmetric mode
+output = rtl.forward(embeddings)
+
+# "TimeTravel" mode: high dissonance enables non-local jumps
+output = rtl.time_travel(embeddings, mode="prophecy")
+print(f"Waypoints: {output.waypoints}")
+print(f"Skip ratio: {output.skip_metrics.skip_ratio:.3f}")
+print(f"Non-locality: {output.skip_metrics.non_locality_index:.3f}")
+```
+
+**Key concepts:**
+- **Dissonance**: Hebrew↔Gregorian calendar incommensurability + JSD + entropy difference
+- **Waypoints**: Anchor points with high cumulative attention mass (length-invariant selection)
+- **Non-locality index**: Mean attention distance / (L-1) — honest behavioral metric
+
+### 2. **Sparse Waypoint Attention (REAL Compute Savings)**
+
+Unlike bias-based distance modulation, sparse attention gives ACTUAL FLOPs reduction:
+
+```python
+from pitomadom import SparseWaypointAttention
+
+sparse = SparseWaypointAttention(dim=64, num_heads=4)
+waypoint_indices = [0, 42, 127]  # Only attend to these positions
+
+output, weights = sparse.forward(x, waypoint_indices, return_weights=True)
+
+# Real savings: O(L×k) instead of O(L²)
+savings = sparse.compute_savings(seq_len=512, num_waypoints=3)
+print(f"Compute savings: {savings:.1%}")  # ~99.4%
+```
+
+### 3. **Surrogate Tests & FDR Correction (Scientific Rigor)**
+
+Is your "resonance" actually significant, or just chance? Now you can test:
+
+```python
+from pitomadom import SurrogateTest, FDRCorrection, SurrogateMethod
+
+# Test if lunar correlation is real
+surrogate = SurrogateTest(n_surrogates=1000, seed=42)
+result = surrogate.test_correlation(trajectory, lunar_phases)
+
+print(f"p-value: {result.p_value:.4f}")
+print(f"Effect size: {result.effect_size:.2f}")
+print(f"Significant: {result.is_significant_05}")
+
+# Test spectral peak at lunar frequency
+spectral = surrogate.test_spectral_peak(
+    trajectory,
+    target_frequency=1/29.5,  # ~29.5 day cycle
+    method=SurrogateMethod.PHASE_SHUFFLE
+)
+
+# FDR correction for multiple tests
+fdr = FDRCorrection()
+raw_pvals = [0.02, 0.04, 0.15, 0.01, 0.08]
+result = fdr.benjamini_hochberg(raw_pvals, alpha=0.05)
+print(f"Significant after FDR: {result.n_rejected}/{len(raw_pvals)}")
+```
+
+**Methods available:**
+- **Surrogate generation**: Permutation, phase shuffle, block bootstrap, AR(1)
+- **FDR correction**: Benjamini-Hochberg, Benjamini-Yekutieli, Bonferroni
+
+### 4. **Dissonance Metrics (Length-Invariant)**
+
+All metrics now properly scale with sequence length:
+
+| Metric | Formula | Range | Meaning |
+|--------|---------|-------|---------|
+| `non_locality_index` | E[\|i-j\|] / (L-1) | [0, 1] | 0=local, 1=max non-local |
+| `skip_ratio` | positions_between_anchors / L | [0, 1] | Fraction skipped |
+| `boundary_violations` | under_attended_count / L | [0, 1] | Fraction violated |
+| `agreement_score` | (corr + 1) / 2 | [0, 1] | Forward/backward agreement |
+| `dissonance` | 0.5×cal + 0.3×JSD + 0.2×ΔH | [0, 1] | Total divergence |
+
+**JSD instead of KL**: Jensen-Shannon Divergence is symmetric and bounded ∈ [0, ln(2)].
+
+### 5. **Field Coherence (TNFR-Inspired)**
+
+Based on [TNFR-Python-Engine](https://github.com/fermga/TNFR-Python-Engine):
+
+```python
+from pitomadom import FieldCoherence
+
+fc = FieldCoherence()
+
+# Compute from N-trajectory
+n_trajectory = [207, 328, 502, 415, 380, 412]
+state = fc.from_trajectory(n_trajectory)
+
+print(f"Global Coherence C(t): {state.global_coherence:.3f}")  # 0=incoherent, 1=coherent
+print(f"Sense Index Si: {state.sense_index:.3f}")  # Reorganization capacity
+print(f"Field Tetrad: {state.tetrad.summary()}")
+# Φ_s=1.2 (potential), |∇φ|=0.3 (desync), K_φ=-0.1 (curvature), ξ_C=4.0 (coherence length)
+
+if state.is_coherent():
+    print("System in coherent state")
+if state.needs_reorganization():
+    print("High reorganization capacity detected")
+```
+
+**Key formula**: `C(t) = 1 - (σ_pressure / max_pressure)` — coherence from pressure uniformity.
+
+---
+
 ## API Reference
 
 ### HeOracle
