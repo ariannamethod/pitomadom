@@ -4088,7 +4088,7 @@ Drawing from TNFR's coherence metrics [33], all v1.2 metrics scale properly with
 | Metric | Formula | Properties |
 |--------|---------|------------|
 | `non_locality_index` | E[\|i-j\|] / (L-1) | 0=local, 1=max non-local |
-| `skip_ratio` | skipped_positions / (L-1) | Fraction of sequence jumped |
+| `skip_ratio` | skipped_positions / max(L-1, 1) | Fraction of sequence jumped |
 | `boundary_violations` | violations / L | Fraction under-attended |
 | `agreement_score` | (ρ + 1) / 2 | Pearson correlation mapped to [0,1] |
 

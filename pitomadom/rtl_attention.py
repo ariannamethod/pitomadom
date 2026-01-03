@@ -397,9 +397,15 @@ class DissonanceGate:
 
         # 3. Agreement score: Pearson correlation between forward and backward
         # Normalized from [-1, 1] to [0, 1] for consistent interpretation
-        agreement = np.corrcoef(forward_weights.flatten(), backward_weights.flatten())[0, 1]
-        if np.isnan(agreement):
+        fw = forward_weights.flatten()
+        bw = backward_weights.flatten()
+        # Guard against zero-variance inputs, where Pearson correlation is undefined
+        if np.var(fw) <= EPS or np.var(bw) <= EPS:
             agreement = 0.0
+        else:
+            agreement = np.corrcoef(fw, bw)[0, 1]
+            if np.isnan(agreement):
+                agreement = 0.0
         agreement_score = np.clip((agreement + 1) / 2, 0, 1)
 
         # 4. Quality delta: justified skip potential
@@ -445,6 +451,13 @@ class BidirectionalAttention:
         self.dim = dim
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
+
+        # Validate that dim is divisible by num_heads to ensure consistent reshape
+        if dim % num_heads != 0:
+            raise ValueError(
+                f"dim must be divisible by num_heads: "
+                f"dim={dim}, num_heads={num_heads}, remainder={dim % num_heads}"
+            )
 
         rng = np.random.RandomState(seed)
         scale = np.sqrt(2.0 / dim)

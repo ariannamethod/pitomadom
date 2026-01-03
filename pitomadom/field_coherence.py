@@ -20,7 +20,7 @@ These are diagnostic metrics (read-only), not modifying system state.
 """
 
 import numpy as np
-from typing import List, Dict, Tuple, Optional
+from typing import List, Optional
 from dataclasses import dataclass
 
 
@@ -302,8 +302,19 @@ class FieldCoherence:
 
         # Compute autocorrelation
         max_lag = n // 2
+
+        # Handle edge case: n=3 gives max_lag=1, range(1,1) is empty
+        if max_lag <= 1:
+            return float(n)  # Too short to compute meaningful coherence length
+
         for lag in range(1, max_lag):
-            corr = np.corrcoef(field[:-lag], field[lag:])[0, 1]
+            left = field[:-lag]
+            right = field[lag:]
+            # If either segment has near-zero variance, correlation is ill-defined
+            if np.var(left) < EPS or np.var(right) < EPS:
+                corr = 1.0  # Treat as perfect coherence for this lag
+            else:
+                corr = np.corrcoef(left, right)[0, 1]
             if np.isnan(corr) or corr < threshold:
                 return float(lag)
 

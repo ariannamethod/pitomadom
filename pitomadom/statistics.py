@@ -211,10 +211,19 @@ class SurrogateTest:
         mean = np.mean(data)
         centered = data - mean
 
-        # Estimate AR(1) coefficient
-        autocorr = np.corrcoef(centered[:-1], centered[1:])[0, 1]
-        if np.isnan(autocorr):
+        # Estimate AR(1) coefficient with zero-variance guard
+        var_prev = np.var(centered[:-1])
+        var_next = np.var(centered[1:])
+        if var_prev < EPS or var_next < EPS:
+            # If either segment has near-zero variance, correlation is ill-defined
             autocorr = 0.0
+        else:
+            autocorr = np.corrcoef(centered[:-1], centered[1:])[0, 1]
+            if np.isnan(autocorr):
+                autocorr = 0.0
+
+        # Clamp autocorrelation to valid range to ensure numerical stability
+        autocorr = np.clip(autocorr, -1.0, 1.0)
 
         # Generate AR(1) process
         std = np.std(data)
@@ -367,10 +376,17 @@ class SurrogateTest:
             min_len = min(len(x), len(y))
             x, y = x[:min_len], y[:min_len]
 
-        def corr_with_y(data):
-            if np.std(data) < EPS or np.std(y) < EPS:
+        # Check y variance once to avoid repeated computation in lambda
+        y_std = np.std(y)
+        if y_std < EPS:
+            # If y has near-zero variance, correlation is undefined for all surrogates
+            def corr_with_y(_):
                 return 0.0
-            return np.corrcoef(data, y)[0, 1]
+        else:
+            def corr_with_y(data):
+                if np.std(data) < EPS:
+                    return 0.0
+                return np.corrcoef(data, y)[0, 1]
 
         return self.test_statistic(x, corr_with_y, method)
 
@@ -721,7 +737,6 @@ def test_multiple_hypotheses(
     # Combine results
     summary = []
     for i, name in enumerate(names):
-        sig = "SIGNIFICANT" if fdr_result.rejected[i] else "not significant"
         summary.append({
             "name": name,
             "raw_p": pvalues[i],
