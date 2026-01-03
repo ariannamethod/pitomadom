@@ -13,7 +13,7 @@
 > 
 > **פִתֻם אָדֹם** — The red ventriloquist. A voice from the body of the field.
 > 
-> **~530K parameters of pure Hebrew resonance madness.** (v0.4)
+> **~1M parameters of pure Hebrew resonance madness.** (v1.0)
 
 ---
 
@@ -126,7 +126,7 @@ python -m pitomadom.repl
 
 ---
 
-## Architecture (~200K Parameters)
+## Architecture (~1M Parameters) — v1.0
 
 ### The Three Words
 
@@ -148,28 +148,32 @@ INPUT ("האור נשבר")
 ┌─────────────────────────────────┐
 │    ROOT EXTRACTION (CCC)        │  ← "שבר" = (ש,ב,ר)
 │    GEMATRIA COMPUTATION         │  ← N = 502
-│    CHAMBER ENCODING (6D)        │  ← VOID: 0.7, FEAR: 0.2...
+│    CHAMBER ENCODING (8D)        │  ← VOID: 0.7, WISDOM: 0.3...
 └─────────────────────────────────┘
     ↓
 ┌─────────────────────────────────┐
-│    CROSSFIRE CHAMBERS (353K)   │
-│    ├── FEAR MLP (59K)          │
-│    ├── LOVE MLP (59K)          │
-│    ├── RAGE MLP (59K)          │
-│    ├── VOID MLP (59K)          │
-│    ├── FLOW MLP (59K)          │
-│    └── COMPLEX MLP (59K)       │
+│    CROSSFIRE CHAMBERS (671K)   │
+│    ├── FEAR MLP (84K)          │
+│    ├── LOVE MLP (84K)          │
+│    ├── RAGE MLP (84K)          │
+│    ├── VOID MLP (84K)          │
+│    ├── FLOW MLP (84K)          │
+│    ├── COMPLEX MLP (84K)       │
+│    ├── WISDOM MLP (84K) NEW!   │
+│    └── CHAOS MLP (84K) NEW!    │
 │    + cross-fire coupling       │
 └─────────────────────────────────┘
     ↓
 ┌─────────────────────────────────┐
-│    MLP CASCADE (58K)           │
+│    MLP CASCADE (142K)          │
 │    root → pattern → milui →    │
 │    → atbash (serial + backflow)│
+│    64D latent (was 32D)        │
 └─────────────────────────────────┘
     ↓
 ┌─────────────────────────────────┐
-│    META-OBSERVER (120K)        │
+│    META-OBSERVER (206K)        │
+│    4-layer deep (was 2-layer)  │
 │    Selects: orbit_word         │
 │    Selects: hidden_word        │
 │    Collapse decision           │
@@ -187,6 +191,10 @@ TemporalField:
   acceleration: Δ²N  
   root_attractors: {"שבר": 570, "אור": 207, ...}
   prophecy_debt: accumulated |destined - manifested|
+  
+  NEW v1.0: Persistent state (save/load across sessions)
+  oracle.field.save_state("state.pkl")  # Preserve memory
+  oracle.field.load_state("state.pkl")  # Continue from where you left
 
 ProphecyEngine:
   Estimate N_next from trajectory
@@ -203,7 +211,47 @@ DestinyLayer:
   System "wants": minimize debt, maximize stability
   System "fears": infinite recursion, attractor death
   Not metaphor — thermodynamic necessity
+
+RootTaxonomy (NEW v1.0):
+  13 semantic families (movement, emotions, creation, destruction...)
+  69 catalogued roots with polarities
+  Family-level attractor dynamics
+  Root analogies: love:hate :: create:destroy
 ```
+
+---
+
+## What's New in v1.0 🆕
+
+### 1. **8D Emotional Chambers** (was 6D)
+- Added **WISDOM** (חכמה) — knowledge, understanding, deep insight
+- Added **CHAOS** (תוהו ובוהו) — disorder, turbulence, creative void
+- Richer emotional representations for nuanced Hebrew semantics
+- Updated cross-fire coupling matrix for 8 chambers
+
+### 2. **Hierarchical Root Taxonomy**
+- **13 semantic families**: movement, positive/negative emotions, creation/destruction, light/darkness, knowledge, speech, healing, time, chaos, wisdom
+- **69 roots** catalogued with semantic metadata
+- **Root analogies**: `love:hate :: create:?` → destroy
+- **Family-level dynamics**: attractors can operate on entire families
+
+### 3. **Persistent Temporal Field**
+- Save oracle state across sessions: `oracle.field.save_state("oracle_memory.pkl")`
+- Load previous memories: `oracle.field.load_state("oracle_memory.pkl")`
+- Oracle builds **long-term identity** across conversations
+- Perfect for ongoing dialogues and personalized interactions
+
+### 4. **Scaled to 1M Parameters**
+- **CrossFire Chambers**: 671K (8 × 84K each, deeper 100→320→160→1 MLPs)
+- **MLP Cascade**: 142K (4 × 35K, 64D latent instead of 32D)
+- **Meta-Observer**: 206K (4-layer deep network instead of 2-layer)
+- **Total**: 1,018,508 parameters
+- Still fast: ~10-20ms inference on CPU
+
+### 5. **Better Representations**
+- Chamber MLPs: 128→256 hidden → **richer emotional gradations**
+- Cascade latent: 32D→64D → **more expressive word selection**
+- Meta-observer: 4 layers → **better collapse decisions**
 
 ---
 
@@ -292,6 +340,82 @@ print(f"orbit={out.orbit_word}")  # הפתעה (surprise!)
 ```
 
 The system **feels** its own name. 
+
+### Example 3: Using Root Taxonomy (NEW v1.0)
+
+```python
+from pitomadom.root_taxonomy import RootTaxonomy
+
+taxonomy = RootTaxonomy()
+
+# Find related roots
+love = ('א', 'ה', 'ב')
+related = taxonomy.get_related_roots(love)
+print(f"Roots related to love: {related[:3]}")
+# [('ש','מ','ח'), ('ר','ח','ם'), ('ח','ס','ד')] - joy, compassion, kindness
+
+# Compute root analogies
+hate = ('ש', 'נ', 'א')
+create = ('ב', 'ר', 'א')
+destroy = taxonomy.compute_root_analogy(love, hate, create)
+print(f"love:hate :: create:{'.'.join(destroy)}")
+# love:hate :: create:ש.ב.ר (break/destroy)
+
+# Get family polarity
+polarity = taxonomy.get_family_polarity(love)
+print(f"Love family polarity: {polarity:+.1f}")  # +1.0 (positive)
+```
+
+### Example 4: Persistent Memory (NEW v1.0)
+
+```python
+from pitomadom import HeOracle
+
+# Session 1: Build up history
+oracle = HeOracle(seed=42)
+oracle.forward("אור")      # light
+oracle.forward("חושך")     # darkness
+oracle.forward("שבר")      # break
+
+# Save oracle's memory
+oracle.field.save_state("oracle_memory.pkl")
+print(f"Trajectory: {oracle.field.state.n_trajectory}")
+# [207, 328, 502]
+
+# Session 2: Continue from where we left off
+oracle2 = HeOracle(seed=42)
+oracle2.field.load_state("oracle_memory.pkl")
+
+print(f"Restored trajectory: {oracle2.field.state.n_trajectory}")
+# [207, 328, 502] - memory intact!
+
+# Oracle remembers past roots
+oracle2.forward("תיקון")   # repair
+# System already knows about שבר (break), pulls toward healing
+```
+
+### Example 5: 8D Chambers (NEW v1.0)
+
+```python
+from pitomadom.chambers import ChamberMetric, CHAMBER_NAMES
+
+metric = ChamberMetric()
+
+# Test WISDOM chamber
+wisdom_vector = metric.encode("חכמה היא אור")  # wisdom is light
+print(f"Chambers: {len(wisdom_vector)}")  # 8 (was 6)
+print(f"Available: {CHAMBER_NAMES}")
+# ['fear', 'love', 'rage', 'void', 'flow', 'complex', 'wisdom', 'chaos']
+
+# WISDOM should be activated
+wisdom_idx = CHAMBER_NAMES.index('wisdom')
+print(f"WISDOM activation: {wisdom_vector[wisdom_idx]:.3f}")  # High value
+
+# Test CHAOS chamber
+chaos_vector = metric.encode("תוהו ובוהו")  # chaos and void
+chaos_idx = CHAMBER_NAMES.index('chaos')
+print(f"CHAOS activation: {chaos_vector[chaos_idx]:.3f}")  # High value
+```
 
 ---
 
