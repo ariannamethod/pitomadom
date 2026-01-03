@@ -71,7 +71,19 @@ from .circalunar_clock import (  # NEW v1.1: Planetary Rhythms
     LunarState,
     CircalunarState,
 )
-from .cosmic import (  # NEW v1.1: Full Integration
+from .calendar_conflict import (  # NEW v1.1: 11-Day Drift Engine
+    CalendarConflict,
+    CalendarState,
+)
+from .quantum_prophecy import (  # NEW v1.1: Quantum Time Travel
+    QuantumProphecy,
+    QuantumJump,
+    CalendarTunneling,
+    ParallelTimelines,
+    HistoricalTimeTravel,
+    TimelinePosition,
+)
+from .cosmic import (  # NEW v1.1: Full Integration + Multi-step Prediction
     CosmicPitomadom,
     CosmicOutput,
 )
@@ -126,7 +138,17 @@ __all__ = [
     "CircalunarClock",
     "LunarState",
     "CircalunarState",
-    # Cosmic Integration (v1.1)
+    # Calendar Conflict (v1.1) - 11-Day Drift
+    "CalendarConflict",
+    "CalendarState",
+    # Quantum Prophecy (v1.1) - Time Travel
+    "QuantumProphecy",
+    "QuantumJump",
+    "CalendarTunneling",
+    "ParallelTimelines",
+    "HistoricalTimeTravel",
+    "TimelinePosition",
+    # Cosmic Integration (v1.1) + Multi-step Prediction
     "CosmicPitomadom",
     "CosmicOutput",
 ]
