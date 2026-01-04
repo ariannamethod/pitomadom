@@ -3,7 +3,6 @@
 **Arianna Method**  
 *January 2026 — v1.2*
 
-<iframe src="https://docs.google.com/document/d/e/2PACX-1vSSIX72BsyK8wpqvwSEnmUBkpACjRl_eB7EUHe5oCzJrfH8iE-vPvID7w-QuMsq2CQVE4vsy2Q0Zjij/pub?embedded=true"></iframe>
   
 ---
 
