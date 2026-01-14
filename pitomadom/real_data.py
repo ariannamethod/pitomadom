@@ -23,7 +23,7 @@ Data sources:
 - Lunar: https://aa.usno.navy.mil/data/api
 - Calendar: Astronomical algorithms (Meeus, 1991)
 
-זה אמיתי — This is REAL.
+
 """
 
 import numpy as np
