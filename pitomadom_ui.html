@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PITOMADOM | Hebrew Root Oracle</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0a0a0f;
+    color: #e0ddd5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+header {
+    width: 100%;
+    padding: 24px 0 16px;
+    text-align: center;
+    border-bottom: 1px solid #1a1a2e;
+    background: linear-gradient(180deg, #0f0f1a 0%, #0a0a0f 100%);
+}
+header h1 {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    color: #c41e3a;
+}
+header .subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+    font-family: 'David', 'Noto Sans Hebrew', serif;
+}
+.container {
+    width: 100%;
+    max-width: 640px;
+    padding: 24px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.input-area {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+.input-area input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 18px;
+    font-family: 'David', 'Noto Sans Hebrew', serif;
+    background: #111118;
+    border: 1px solid #2a2a3e;
+    border-radius: 8px;
+    color: #e0ddd5;
+    outline: none;
+    direction: rtl;
+    text-align: right;
+}
+.input-area input:focus {
+    border-color: #c41e3a;
+    box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.15);
+}
+.input-area input::placeholder {
+    color: #444;
+}
+.input-area button {
+    padding: 12px 20px;
+    font-size: 16px;
+    background: #c41e3a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.input-area button:hover { background: #a01830; }
+.input-area button:disabled {
+    background: #333;
+    cursor: not-allowed;
+}
+
+.history {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.result-card {
+    background: #111118;
+    border: 1px solid #1a1a2e;
+    border-radius: 12px;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.result-card .input-text {
+    font-family: 'David', 'Noto Sans Hebrew', serif;
+    font-size: 22px;
+    color: #c41e3a;
+    margin-bottom: 12px;
+    text-align: right;
+}
+
+.result-card .roots-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    direction: rtl;
+}
+.root-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #1a1a2e;
+    border-radius: 16px;
+    font-family: 'David', 'Noto Sans Hebrew', serif;
+    font-size: 16px;
+    color: #8888aa;
+}
+
+.prediction {
+    background: #0f0f1a;
+    border: 1px solid #2a2a3e;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+.prediction .label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+.prediction .root {
+    font-family: 'David', 'Noto Sans Hebrew', serif;
+    font-size: 36px;
+    color: #c41e3a;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.prediction .gematria {
+    font-size: 24px;
+    color: #888;
+    font-weight: 300;
+}
+
+.confidence-bar {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+    justify-content: center;
+}
+.confidence-bar .bar {
+    width: 60px;
+    height: 4px;
+    background: #1a1a2e;
+    border-radius: 2px;
+    overflow: hidden;
+}
+.confidence-bar .bar .fill {
+    height: 100%;
+    background: #c41e3a;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+.confidence-bar .bar-label {
+    font-size: 10px;
+    color: #555;
+    text-align: center;
+    margin-top: 2px;
+}
+
+.meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #555;
+}
+
+.error {
+    color: #c41e3a;
+    text-align: center;
+    padding: 12px;
+    font-size: 14px;
+}
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #555;
+}
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #333;
+    border-top-color: #c41e3a;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+footer {
+    width: 100%;
+    text-align: center;
+    padding: 16px;
+    font-size: 11px;
+    color: #333;
+    border-top: 1px solid #1a1a2e;
+}
+footer a { color: #555; text-decoration: none; }
+footer a:hover { color: #c41e3a; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>PITOMADOM</h1>
+    <div class="subtitle">Hebrew Root Resonance Oracle</div>
+</header>
+
+<div class="container">
+    <div class="input-area">
+        <input type="text" id="input" placeholder="...הקלד עברית" autofocus>
+        <button id="send" onclick="query()">שלח</button>
+    </div>
+    <div class="history" id="history"></div>
+</div>
+
+<footer>
+    <a href="https://github.com/ariannamethod/pitomadom">PITOMADOM</a> | Arianna Method
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const history = document.getElementById('history');
+const sendBtn = document.getElementById('send');
+
+input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        query();
+    }
+});
+
+async function query() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    sendBtn.disabled = true;
+
+    // Add loading card
+    const loadingId = 'loading-' + Date.now();
+    history.insertAdjacentHTML('afterbegin',
+        `<div id="${loadingId}" class="loading">...</div>`);
+
+    try {
+        const resp = await fetch('/api/oracle', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text})
+        });
+
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+
+        const el = document.getElementById(loadingId);
+        if (el) el.remove();
+
+        if (!data.predicted || data.num_roots === 0) {
+            history.insertAdjacentHTML('afterbegin',
+                `<div class="result-card"><div class="error">No Hebrew roots found</div></div>`);
+            return;
+        }
+
+        const c = data.confidence;
+        const html = `
+        <div class="result-card">
+            <div class="input-text">${escHtml(data.input)}</div>
+            <div class="roots-row">
+                ${data.roots.map(r => `<span class="root-tag">${escHtml(r)}</span>`).join('')}
+            </div>
+            <div class="prediction">
+                <div class="label">Predicted Root</div>
+                <div class="root">${escHtml(data.predicted)}</div>
+                <div class="gematria">${data.gematria}</div>
+                <div class="confidence-bar">
+                    <div>
+                        <div class="bar"><div class="fill" style="width:${(c[0]*100).toFixed(0)}%"></div></div>
+                        <div class="bar-label">C1 ${(c[0]*100).toFixed(0)}%</div>
+                    </div>
+                    <div>
+                        <div class="bar"><div class="fill" style="width:${(c[1]*100).toFixed(0)}%"></div></div>
+                        <div class="bar-label">C2 ${(c[1]*100).toFixed(0)}%</div>
+                    </div>
+                    <div>
+                        <div class="bar"><div class="fill" style="width:${(c[2]*100).toFixed(0)}%"></div></div>
+                        <div class="bar-label">C3 ${(c[2]*100).toFixed(0)}%</div>
+                    </div>
+                </div>
+                <div class="meta-row">
+                    <span>${data.num_roots} roots</span>
+                    <span>${data.words.length} words</span>
+                </div>
+            </div>
+        </div>`;
+        history.insertAdjacentHTML('afterbegin', html);
+
+    } catch (err) {
+        const el = document.getElementById(loadingId);
+        if (el) el.remove();
+        history.insertAdjacentHTML('afterbegin',
+            `<div class="result-card"><div class="error">${escHtml(err.message)}</div></div>`);
+    } finally {
+        sendBtn.disabled = false;
+        input.focus();
+    }
+}
+
+function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+// Health check
+fetch('/health').then(r => r.json()).then(d => {
+    document.querySelector('.subtitle').textContent =
+        `dim=${d.dim} | ${d.layers} layers`;
+}).catch(() => {
+    document.querySelector('.subtitle').textContent = 'Server not connected';
+});
+</script>
+</body>
+</html>

@@ -11,13 +11,14 @@ package main
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math"
+	"net/http"
 	"os"
 	"sort"
 	"strings"
-	"unicode"
 )
 
 // ============================================================================
@@ -36,6 +37,78 @@ var heGematria = map[rune]int{
 }
 
 var finalToRegular = map[rune]rune{'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ'}
+
+// Root lexicon — known roots from root_taxonomy.py (22 families, ~130 roots)
+// Maps normalized consonant sequence to (c1, c2, c3) letter indices
+// Used for exact lookup before falling back to heuristic stripping
+var rootLexicon = map[string][3]rune{}
+
+func init() {
+	// Build root lexicon from taxonomy
+	knownRoots := [][3]rune{
+		// movement
+		{'ה', 'ל', 'כ'}, {'י', 'צ', 'א'}, {'ע', 'ל', 'ה'}, {'י', 'ר', 'ד'}, {'נ', 'ו', 'ס'}, {'ר', 'ו', 'צ'},
+		// emotion_positive
+		{'א', 'ה', 'ב'}, {'ש', 'מ', 'ח'}, {'ר', 'ח', 'מ'}, {'ח', 'ס', 'ד'}, {'ר', 'צ', 'ה'}, {'ע', 'נ', 'ג'},
+		// emotion_negative
+		{'פ', 'ח', 'ד'}, {'ש', 'נ', 'א'}, {'כ', 'ע', 'ס'}, {'ז', 'ע', 'מ'}, {'ע', 'צ', 'ב'}, {'ד', 'א', 'ג'},
+		// creation
+		{'ב', 'ר', 'א'}, {'ע', 'ש', 'ה'}, {'י', 'צ', 'ר'}, {'ב', 'נ', 'ה'}, {'כ', 'ו', 'נ'}, {'ח', 'ד', 'ש'},
+		// destruction
+		{'ש', 'ב', 'ר'}, {'ה', 'ר', 'ג'}, {'כ', 'ל', 'ה'}, {'ש', 'ח', 'ת'}, {'נ', 'פ', 'ל'}, {'ק', 'ר', 'ע'},
+		// knowledge
+		{'י', 'ד', 'ע'}, {'ח', 'כ', 'מ'}, {'ש', 'כ', 'ל'}, {'ל', 'מ', 'ד'}, {'ה', 'ב', 'ן'},
+		// light
+		{'א', 'ו', 'ר'}, {'ה', 'א', 'ר'}, {'נ', 'ה', 'ר'}, {'ז', 'ר', 'ח'}, {'ב', 'ר', 'ק'},
+		// darkness
+		{'ח', 'ש', 'כ'}, {'ע', 'ל', 'מ'}, {'ס', 'ת', 'ר'}, {'כ', 'ס', 'ה'},
+		// speech
+		{'א', 'מ', 'ר'}, {'ד', 'ב', 'ר'}, {'ק', 'ר', 'א'}, {'ש', 'א', 'ל'}, {'ע', 'נ', 'ה'}, {'צ', 'ע', 'ק'},
+		// healing
+		{'ר', 'פ', 'א'}, {'ח', 'י', 'ה'}, {'ש', 'ל', 'מ'}, {'ת', 'ק', 'נ'},
+		// time
+		{'ה', 'י', 'ה'}, {'ע', 'ב', 'ר'}, {'ב', 'ו', 'א'}, {'ש', 'ו', 'ב'},
+		// chaos
+		{'ת', 'ה', 'ו'}, {'ב', 'ה', 'ו'}, {'ב', 'ל', 'ל'}, {'ס', 'ע', 'ר'},
+		// wisdom_deep
+		{'ס', 'ו', 'ד'}, {'ר', 'ז', 'י'}, {'ב', 'י', 'נ'}, {'ע', 'מ', 'ק'}, {'נ', 'ב', 'א'}, {'ח', 'ז', 'ה'},
+		// body
+		{'ל', 'ב', 'ב'}, {'ר', 'א', 'ה'}, {'ש', 'מ', 'ע'}, {'נ', 'ג', 'ע'}, {'א', 'כ', 'ל'}, {'ש', 'ת', 'ה'},
+		{'י', 'ש', 'נ'}, {'ק', 'ו', 'מ'}, {'י', 'ש', 'ב'}, {'ש', 'כ', 'ב'},
+		// power
+		{'מ', 'ל', 'כ'}, {'ש', 'ל', 'ט'}, {'ג', 'ב', 'ר'}, {'ע', 'ז', 'ז'}, {'כ', 'ח', 'ש'}, {'נ', 'צ', 'ח'}, {'כ', 'ב', 'ש'},
+		// sanctity
+		{'ק', 'ד', 'ש'}, {'ט', 'ה', 'ר'}, {'ב', 'ר', 'כ'}, {'כ', 'פ', 'ר'}, {'ח', 'ט', 'א'}, {'ע', 'ו', 'נ'}, {'ת', 'ש', 'ב'},
+		// nature
+		{'מ', 'י', 'מ'}, {'א', 'ש', 'ש'}, {'ר', 'ו', 'ח'}, {'א', 'ד', 'מ'}, {'ש', 'מ', 'ש'}, {'י', 'ר', 'ח'}, {'כ', 'ו', 'כ'}, {'ע', 'נ', 'נ'}, {'ג', 'ש', 'מ'},
+		// social
+		{'ח', 'ב', 'ר'}, {'ע', 'ז', 'ר'}, {'נ', 'ת', 'נ'}, {'ל', 'ק', 'ח'}, {'ש', 'ל', 'ח'}, {'ב', 'ק', 'ש'}, {'מ', 'צ', 'א'}, {'א', 'ב', 'ד'},
+		// war
+		{'ל', 'ח', 'מ'}, {'נ', 'ל', 'ח'}, {'ה', 'כ', 'ה'}, {'נ', 'כ', 'ה'}, {'ג', 'נ', 'נ'}, {'ש', 'מ', 'ר'},
+		// growth
+		{'ג', 'ד', 'ל'}, {'צ', 'מ', 'ח'}, {'פ', 'ר', 'ח'}, {'ז', 'ר', 'ע'}, {'ק', 'צ', 'ר'}, {'נ', 'ט', 'ע'},
+		// binding
+		{'ק', 'ש', 'ר'}, {'א', 'ס', 'ר'}, {'פ', 'ת', 'ח'}, {'ס', 'ג', 'ר'}, {'ח', 'ת', 'מ'}, {'ש', 'ח', 'ר'},
+		// truth
+		{'א', 'מ', 'ת'}, {'א', 'מ', 'נ'}, {'כ', 'ז', 'ב'}, {'ש', 'ק', 'ר'}, {'נ', 'א', 'מ'}, {'ע', 'ד', 'ד'},
+		// mind
+		{'ח', 'ש', 'ב'}, {'ז', 'כ', 'ר'}, {'ש', 'כ', 'ח'}, {'ב', 'ח', 'ר'}, {'ס', 'פ', 'ר'},
+		// pitomadom
+		{'פ', 'ת', 'ע'}, {'א', 'ד', 'מ'}, {'ד', 'מ', 'מ'}, {'ל', 'ה', 'ב'},
+		// common roots not in taxonomy
+		{'כ', 'ת', 'ב'}, {'ק', 'ב', 'ל'}, {'ע', 'מ', 'ד'}, {'ח', 'ז', 'ק'}, {'ג', 'ל', 'ה'},
+		{'ש', 'פ', 'ט'}, {'צ', 'ד', 'ק'}, {'ר', 'ג', 'ש'}, {'ח', 'ל', 'מ'}, {'ש', 'ר', 'ש'},
+	}
+
+	for _, root := range knownRoots {
+		key := string([]rune{
+			normalizeLetter(root[0]),
+			normalizeLetter(root[1]),
+			normalizeLetter(root[2]),
+		})
+		rootLexicon[key] = root
+	}
+}
 
 var letterToIdx = map[rune]int{}
 
@@ -110,7 +183,49 @@ func init() {
 	})
 }
 
-// Extract approximate root (3 letter indices) from Hebrew word
+// extractRootLexicon tries to find a known root as a subsequence of the consonants.
+// Hebrew roots are non-concatenative: ש.ל.מ appears in שלום as ש_ל_ו_מ (vav is inserted).
+// We try all lexicon roots and check if the 3 letters appear in order (subsequence match).
+// Prefers roots that start earlier and have less "distance" between letters.
+func extractRootLexicon(consonants []rune) (int, int, int, bool) {
+	n := len(consonants)
+	if n < 3 {
+		return 0, 0, 0, false
+	}
+
+	type match struct {
+		root     [3]rune
+		startIdx int
+		span     int // total distance between first and last matched letter
+	}
+	var best *match
+
+	for _, root := range rootLexicon {
+		r := []rune{normalizeLetter(root[0]), normalizeLetter(root[1]), normalizeLetter(root[2])}
+		// Find subsequence match
+		pos := 0
+		indices := [3]int{-1, -1, -1}
+		for i := 0; i < n && pos < 3; i++ {
+			if consonants[i] == r[pos] {
+				indices[pos] = i
+				pos++
+			}
+		}
+		if pos == 3 {
+			span := indices[2] - indices[0]
+			if best == nil || indices[0] < best.startIdx || (indices[0] == best.startIdx && span < best.span) {
+				best = &match{root: root, startIdx: indices[0], span: span}
+			}
+		}
+	}
+
+	if best != nil {
+		return charToIdx(best.root[0]), charToIdx(best.root[1]), charToIdx(best.root[2]), true
+	}
+	return 0, 0, 0, false
+}
+
+// Extract root from Hebrew word. Tries lexicon lookup first, then heuristic stripping.
 func extractRoot(word string) (int, int, int, bool) {
 	// Get consonants
 	var consonants []rune
@@ -123,6 +238,12 @@ func extractRoot(word string) (int, int, int, bool) {
 		return 0, 0, 0, false
 	}
 
+	// Try lexicon lookup first (exact match wins)
+	if c1, c2, c3, ok := extractRootLexicon(consonants); ok {
+		return c1, c2, c3, true
+	}
+
+	// Fallback: heuristic stripping (matches Python train_rtl.py for model compatibility)
 	text := string(consonants)
 
 	// Strip prefix — match Python: >= 2 remaining (model was trained with this)
@@ -717,57 +838,25 @@ func forward(m *GGUFModel, roots [][3]int, gematrias []float32) ([3]int, []float
 // MAIN
 // ============================================================================
 
-func main() {
-	if len(os.Args) < 3 {
-		fmt.Println("PITOMADOM — Hebrew Root Resonance Oracle (Go)")
-		fmt.Println()
-		fmt.Println("Usage:")
-		fmt.Println("  pitomadom -model <path.gguf> -text <hebrew text>")
-		fmt.Println()
-		fmt.Println("Example:")
-		fmt.Println("  pitomadom -model pitomadom.gguf -text \"שלום עולם\"")
-		os.Exit(0)
-	}
+// ============================================================================
+// HTTP SERVER
+// ============================================================================
 
-	var modelPath, inputText string
-	for i := 1; i < len(os.Args); i++ {
-		switch os.Args[i] {
-		case "-model":
-			i++
-			modelPath = os.Args[i]
-		case "-text":
-			i++
-			inputText = os.Args[i]
-		}
-	}
+// OracleResponse is the JSON response from the oracle API
+type OracleResponse struct {
+	Input      string   `json:"input"`
+	Words      []string `json:"words"`
+	Roots      []string `json:"roots"`
+	Predicted  string   `json:"predicted"`
+	Gematria   int      `json:"gematria"`
+	Confidence [3]float32 `json:"confidence"`
+	NumRoots   int      `json:"num_roots"`
+}
 
-	if modelPath == "" || inputText == "" {
-		fmt.Fprintln(os.Stderr, "ERROR: -model and -text required")
-		os.Exit(1)
-	}
-
-	// Filter non-printable warning
-	for _, ch := range inputText {
-		if !unicode.IsPrint(ch) && !unicode.IsSpace(ch) {
-			continue
-		}
-	}
-
-	fmt.Println("Loading model...")
-	model, err := loadGGUF(modelPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		os.Exit(1)
-	}
-	fmt.Printf("Model: dim=%d, ff=%d, heads=%d, layers=%d\n",
-		model.Dim, model.FFDim, model.Heads, model.Layers)
-	fmt.Printf("Tensors: %d\n", len(model.Tensors))
-
-	// Extract roots from input
+func runInference(model *GGUFModel, inputText string) *OracleResponse {
 	words := extractHebrewWords(inputText)
 	if len(words) == 0 {
-		fmt.Println("No Hebrew words found in input.")
-		os.Exit(0)
+		return &OracleResponse{Input: inputText}
 	}
 
 	var roots [][3]int
@@ -784,29 +873,159 @@ func main() {
 	}
 
 	if len(roots) == 0 {
-		fmt.Println("No roots extracted.")
+		return &OracleResponse{Input: inputText, Words: words}
+	}
+
+	predicted, confidence := forward(model, roots, gematrias)
+	predRoot := rootToString(predicted[0], predicted[1], predicted[2])
+	predGem := int(rootGematria(predicted[0], predicted[1], predicted[2]) * 500)
+
+	return &OracleResponse{
+		Input:      inputText,
+		Words:      words,
+		Roots:      rootStrings,
+		Predicted:  predRoot,
+		Gematria:   predGem,
+		Confidence: [3]float32{confidence[0], confidence[1], confidence[2]},
+		NumRoots:   len(roots),
+	}
+}
+
+//go:generate echo "embedded UI"
+var uiHTML string // set at init or loaded from file
+
+func serveHTTP(model *GGUFModel, addr string) {
+	// API endpoint
+	http.HandleFunc("/api/oracle", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		var req struct {
+			Text string `json:"text"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Text == "" {
+			http.Error(w, `{"error":"provide text field"}`, http.StatusBadRequest)
+			return
+		}
+
+		resp := runInference(model, req.Text)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(resp)
+	})
+
+	// Health
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `{"status":"ok","dim":%d,"layers":%d}`, model.Dim, model.Layers)
+	})
+
+	// UI — try to load pitomadom_ui.html from same directory, else embedded
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Try file first
+		if data, err := os.ReadFile("pitomadom_ui.html"); err == nil {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write(data)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprint(w, "<html><body><h1>PITOMADOM</h1><p>pitomadom_ui.html not found</p></body></html>")
+	})
+
+	fmt.Printf("PITOMADOM serving at http://localhost%s\n", addr)
+	fmt.Printf("  API: POST http://localhost%s/api/oracle {\"text\":\"שלום\"}\n", addr)
+	fmt.Printf("  UI:  http://localhost%s/\n", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+// ============================================================================
+// MAIN
+// ============================================================================
+
+func main() {
+	if len(os.Args) < 3 {
+		fmt.Println("PITOMADOM — Hebrew Root Resonance Oracle (Go)")
+		fmt.Println()
+		fmt.Println("Usage:")
+		fmt.Println("  pitomadom -model <path.gguf> -text <hebrew text>")
+		fmt.Println("  pitomadom -model <path.gguf> -serve :8080")
+		fmt.Println()
+		fmt.Println("Example:")
+		fmt.Println("  pitomadom -model pitomadom.gguf -text \"שלום עולם\"")
+		fmt.Println("  pitomadom -model pitomadom.gguf -serve :8080")
 		os.Exit(0)
 	}
 
-	fmt.Printf("\nInput: %s\n", inputText)
-	fmt.Printf("Words: %v\n", words)
-	fmt.Printf("Roots: %v\n", rootStrings)
+	var modelPath, inputText, serveAddr string
+	for i := 1; i < len(os.Args); i++ {
+		switch os.Args[i] {
+		case "-model":
+			i++
+			if i < len(os.Args) {
+				modelPath = os.Args[i]
+			}
+		case "-text":
+			i++
+			if i < len(os.Args) {
+				inputText = os.Args[i]
+			}
+		case "-serve":
+			i++
+			if i < len(os.Args) {
+				serveAddr = os.Args[i]
+			}
+		}
+	}
+
+	if modelPath == "" {
+		fmt.Fprintln(os.Stderr, "ERROR: -model required")
+		os.Exit(1)
+	}
+
+	fmt.Println("Loading model...")
+	model, err := loadGGUF(modelPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Model: dim=%d, ff=%d, heads=%d, layers=%d\n",
+		model.Dim, model.FFDim, model.Heads, model.Layers)
+	fmt.Printf("Tensors: %d\n", len(model.Tensors))
+
+	// Serve mode
+	if serveAddr != "" {
+		serveHTTP(model, serveAddr)
+		return
+	}
+
+	// CLI mode
+	if inputText == "" {
+		fmt.Fprintln(os.Stderr, "ERROR: -text or -serve required")
+		os.Exit(1)
+	}
+
+	resp := runInference(model, inputText)
+	if resp.NumRoots == 0 {
+		fmt.Println("No Hebrew roots found in input.")
+		os.Exit(0)
+	}
+
+	fmt.Printf("\nInput: %s\n", resp.Input)
+	fmt.Printf("Words: %v\n", resp.Words)
+	fmt.Printf("Roots: %v\n", resp.Roots)
 	fmt.Println()
-
-	// Run inference
-	predicted, confidence := forward(model, roots, gematrias)
-	predRoot := rootToString(predicted[0], predicted[1], predicted[2])
-
-	// Compute gematria of predicted root
-	predGem := int(rootGematria(predicted[0], predicted[1], predicted[2]) * 500)
 
 	fmt.Println("╔══════════════════════════════════════════╗")
 	fmt.Println("║  PITOMADOM — פתאום אדום                   ║")
 	fmt.Println("╠══════════════════════════════════════════╣")
-	fmt.Printf("║  Predicted root: %s                      ║\n", predRoot)
-	fmt.Printf("║  Gematria:       %-6d                   ║\n", predGem)
+	fmt.Printf("║  Predicted root: %s                      ║\n", resp.Predicted)
+	fmt.Printf("║  Gematria:       %-6d                   ║\n", resp.Gematria)
 	fmt.Printf("║  Confidence:     %.1f%% / %.1f%% / %.1f%%      ║\n",
-		confidence[0]*100, confidence[1]*100, confidence[2]*100)
-	fmt.Printf("║  Input roots:    %-4d                     ║\n", len(roots))
+		resp.Confidence[0]*100, resp.Confidence[1]*100, resp.Confidence[2]*100)
+	fmt.Printf("║  Input roots:    %-4d                     ║\n", resp.NumRoots)
 	fmt.Println("╚══════════════════════════════════════════╝")
 }

@@ -78,28 +78,22 @@ func TestExtractHebrewWords(t *testing.T) {
 }
 
 func TestExtractRoot(t *testing.T) {
-	// Must match Python train_rtl.py extract_root exactly
-	// These are the expected (c1, c2, c3) indices from Python
+	// With lexicon, known roots are extracted correctly
 	tests := []struct {
 		word       string
 		c1, c2, c3 int
 		ok         bool
 	}{
-		// חסד: 3 consonants, no stripping -> ח(7).ס(14).ד(3)
+		// חסד: lexicon match ח.ס.ד -> ח(7).ס(14).ד(3)
 		{"חסד", 7, 14, 3, true},
-		// עולם: ע.ו.ל.מ -> strip nothing with >=2 remaining after each
-		// prefix ו matches? No, עולמ starts with ע not ו
-		// Actually: consonants are ע.ו.ל.מ (4), > 3, take first 3: ע(15).ו(5).ל(11)
-		{"עולם", 15, 5, 11, true},
-		// שלום: consonants ש.ל.ו.מ -> strip prefix של (matches, 4-2=2>=2) -> ו.מ -> pad -> ו(5).מ(12).מ(12)
-		{"שלום", 5, 12, 12, true},
-		// אהבה: consonants א.ה.ב.ה -> strip prefix א (4-1=3>=2) -> ה.ב.ה -> ה(4).ב(1).ה(4)
-		// Wait, Python gives (4, 1, 1) = ה.ב.ב. Let me check suffix stripping.
-		// After prefix א stripped: הבה (3 chars). Suffix ה matches (3-1=2>=2) -> הב -> pad -> ה(4).ב(1).ב(1)
-		{"אהבה", 4, 1, 1, true},
-		// ברכה: consonants ב.ר.כ.ה -> strip prefix ב (4-1=3>=2) -> ר.כ.ה (3 chars)
-		// suffix ה matches (3-1=2>=2) -> ר.כ -> pad -> ר(19).כ(10).כ(10)
-		{"ברכה", 19, 10, 10, true},
+		// עולם: contains ע.ל.מ in lexicon (darkness family) -> ע(15).ל(11).מ(12)
+		{"עולם", 15, 11, 12, true},
+		// שלום: contains ש.ל.מ in lexicon (healing family) -> ש(20).ל(11).מ(12)
+		{"שלום", 20, 11, 12, true},
+		// אהבה: contains א.ה.ב in lexicon (emotion_positive) -> א(0).ה(4).ב(1)
+		{"אהבה", 0, 4, 1, true},
+		// ברכה: contains ב.ר.כ in lexicon (sanctity) -> ב(1).ר(19).כ(10)
+		{"ברכה", 1, 19, 10, true},
 		// Too short
 		{"א", 0, 0, 0, false},
 	}
@@ -110,8 +104,9 @@ func TestExtractRoot(t *testing.T) {
 			continue
 		}
 		if ok && (c1 != tt.c1 || c2 != tt.c2 || c3 != tt.c3) {
-			t.Errorf("extractRoot(%q) = (%d,%d,%d), want (%d,%d,%d)",
-				tt.word, c1, c2, c3, tt.c1, tt.c2, tt.c3)
+			t.Errorf("extractRoot(%q) = (%d,%d,%d) [%s], want (%d,%d,%d) [%s]",
+				tt.word, c1, c2, c3, rootToString(c1, c2, c3),
+				tt.c1, tt.c2, tt.c3, rootToString(tt.c1, tt.c2, tt.c3))
 		}
 	}
 }
@@ -271,6 +266,47 @@ func TestNormalizeString(t *testing.T) {
 // ============================================================================
 // INTEGRATION CONSTANTS
 // ============================================================================
+
+func TestRootLexicon(t *testing.T) {
+	// Lexicon should contain known roots
+	if len(rootLexicon) < 100 {
+		t.Errorf("rootLexicon has %d entries, want >= 100", len(rootLexicon))
+	}
+	// Known roots should be findable
+	known := []struct {
+		word string
+		root string
+	}{
+		{"שלום", "ש.ל.מ"},
+		{"אהבה", "א.ה.ב"},
+		{"ברכה", "ב.ר.כ"},
+		{"כתב", "כ.ת.ב"},
+		{"חכמה", "ח.כ.מ"},
+		{"שברים", "ש.ב.ר"},
+		{"גדול", "ג.ד.ל"},
+		{"מלכות", "מ.ל.כ"},
+	}
+	for _, tt := range known {
+		c1, c2, c3, ok := extractRoot(tt.word)
+		if !ok {
+			t.Errorf("extractRoot(%q) failed", tt.word)
+			continue
+		}
+		got := rootToString(c1, c2, c3)
+		if got != tt.root {
+			t.Errorf("extractRoot(%q) = %s, want %s", tt.word, got, tt.root)
+		}
+	}
+}
+
+func TestRootLexiconFallback(t *testing.T) {
+	// Unknown words should still work via heuristic
+	c1, c2, c3, ok := extractRoot("פלורנטין") // not in lexicon
+	if !ok {
+		t.Error("extractRoot(פלורנטין) should succeed via heuristic")
+	}
+	_ = rootToString(c1, c2, c3) // should not panic
+}
 
 func TestHeLettersCount(t *testing.T) {
 	if len(heLetters) != 22 {
