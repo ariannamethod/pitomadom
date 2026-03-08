@@ -40,12 +40,12 @@ go build -o pitomadom pitomadom.go
 Roots: [ש.ל.מ ע.ל.מ]
 
 ╔══════════════════════════════════════════╗
-║  PITOMADOM — פתאום אדום                   ║
+║  PITOMADOM — פתאום אדום                  ║
 ╠══════════════════════════════════════════╣
-║  Predicted root: ע.י.ל                      ║
-║  Gematria:       110                      ║
-║  Confidence:     62.7% / 43.1% / 46.2%      ║
-║  Input roots:    2                        ║
+║  Predicted root: ע.י.ל                   ║
+║  Gematria:       110                     ║
+║  Confidence:     62.7% / 43.1% / 46.2    ║
+║  Input roots:    2                       ║
 ╚══════════════════════════════════════════╝
 ```
 
